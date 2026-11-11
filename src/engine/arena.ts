@@ -157,3 +157,4 @@ export function buildArena(scene: THREE.Scene): ArenaComponents {
     lightsGroup,
   };
 }
+
