@@ -97,7 +97,7 @@
 
 #### TASK-006: Implement Central Keyboard Command and Touch Event Bus
 - **Layer:** 3 (Interfaces & command bus)
-- **Status:** `[ ]`
+- **Status:** `[x]`
 - **Linked stories:** US-001, US-002, US-003, US-005
 - **Linked component:** Event Handler & Command Router
 - **Depends on:** TASK-004
