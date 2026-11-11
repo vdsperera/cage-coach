@@ -189,7 +189,7 @@
 
 #### TASK-013: Procedural Humanoid Clay Rigging and Emissive Focus System
 - **Layer:** 5 (UI & 3D WebGL)
-- **Status:** `[ ]`
+- **Status:** `[x]`
 - **Linked stories:** US-001, US-007
 - **Linked component:** Fighter Rigging & Kinematics Engine (FR-02)
 - **Depends on:** TASK-012, TASK-009
