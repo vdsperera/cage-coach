@@ -68,6 +68,21 @@
     </div>
     <label><input type="checkbox" id="drillTick" checked> Audio ticks</label>
     <label><input type="checkbox" id="drillVoice" checked> Voice prompts</label>
+    <div class="drill-timer-row">
+      <span class="lbl">Round Timer</span>
+      <div class="seg" id="timerDurationSeg">
+        <button data-duration="180" aria-pressed="true">3 min</button>
+        <button data-duration="300" aria-pressed="false">5 min</button>
+      </div>
+      <div id="roundTimerDisplay" class="timer-display">
+        <span id="timerPhaseBadge" class="timer-badge">ROUND 1</span>
+        <span id="timerDigits" class="timer-digits">03:00</span>
+      </div>
+      <div class="timer-btn-row">
+        <button id="timerToggleBtn" class="btn primary">Start Timer</button>
+        <button id="timerResetBtn" class="btn">Reset</button>
+      </div>
+    </div>
   </div>
   <div id="callout" class="ui">
     <div class="big"></div>

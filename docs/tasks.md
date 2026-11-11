@@ -14,10 +14,10 @@
 | **1** | Infrastructure & Tooling | 3 | 3 | 0 | 0 |
 | **2** | Data Models & Persistence | 2 | 2 | 0 | 0 |
 | **3** | Contracts & Command Interfaces | 2 | 2 | 0 | 0 |
-| **4** | Business Logic & Kinematics Services | 4 | 4 | 0 | 0 |
+| **4** | Business Logic & Kinematics Services | 5 | 5 | 0 | 0 |
 | **5** | UI & 3D WebGL Integration | 8 | 8 | 0 | 0 |
 | **6** | Hardening, Testing & Observability | 2 | 2 | 0 | 0 |
-| **Total** | | **21** | **21** | **0** | **0** |
+| **Total** | | **22** | **22** | **0** | **0** |
 
 *Note: In-code performance and resilience fixes (RF-05, RF-06, RF-08, RF-07) have been applied directly to `mma.html` and are marked completed (`[x]`). Subsequent tasks modernize these into modular architecture.*
 
@@ -298,6 +298,18 @@
 - **Acceptance condition:** User can construct custom combo; compiled combo renders with accurate phase progression and contact marks; survives page reloads via `localStorage`; hotkey `+` or click triggers modal.
 - **Estimated size:** M
 - **Risk / notes:** Must handle dynamic addition of keys into reactive HUD dock without breaking selection bounds.
+
+#### TASK-022: Combat Round Timer & Procedural Web Audio Clapper Subsystem
+- **Layer:** 4 (Business Logic & Kinematics Services)
+- **Status:** `[x]`
+- **Linked stories:** US-005 (Automated Audio-Visual Drill Coach)
+- **Linked component:** Round Timer (`src/drill/timer.ts`), HUD Widget (`src/ui/hud.ts`, `src/style.css`, `index.html`)
+- **Depends on:** TASK-011, TASK-016, TASK-017
+- **Input:** Configured round duration (3m or 5m), rest period (60s), and workout rounds (3 or 5).
+- **Output:** Web Audio synthesized round bells and 10s wooden warning clappers (`click-clack-clack`), countdown display in athletic HUD, and synchronization with Drill Coach during active and rest periods.
+- **Acceptance condition:** Timer ticks countdown accurately; plays 10s clapper at 10 seconds remaining; transitions between rounds and rest intervals with round bells; pauses drill coach during rest breaks.
+- **Estimated size:** M
+- **Risk / notes:** Must handle browser audio context auto-resume cleanly.
 
 ---
 

@@ -5,6 +5,7 @@
 
 import type { Technique, TelemetryReadout, AppState } from '../types/kinematics';
 import type { ViewportConfig } from '../engine/camera';
+import type { RoundPhase } from '../drill/timer';
 
 export interface HudEventHandlers {
   onSelectTechnique: (index: number) => void;
@@ -18,6 +19,9 @@ export interface HudEventHandlers {
   ) => void;
   onToggleTune: () => void;
   onToggleComboBuilder: () => void;
+  onTimerToggle: () => void;
+  onTimerReset: () => void;
+  onTimerDurationChange: (sec: number) => void;
   onNextPhase: () => void;
   onPrevPhase: () => void;
   onSaveNote: (content: string) => void;
@@ -236,6 +240,44 @@ export class HudController {
     });
   }
 
+  public updateTimer(
+    remainingSec: number,
+    round: number,
+    phase: RoundPhase,
+    isRunning: boolean
+  ): void {
+    const digitsEl = document.getElementById('timerDigits');
+    const badgeEl = document.getElementById('timerPhaseBadge');
+    const toggleBtn = document.getElementById('timerToggleBtn');
+
+    if (digitsEl) {
+      const mins = Math.floor(remainingSec / 60);
+      const secs = remainingSec % 60;
+      digitsEl.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    if (badgeEl) {
+      badgeEl.className = 'timer-badge';
+      if (phase === 'rest') {
+        badgeEl.textContent = 'REST BREAK';
+        badgeEl.classList.add('rest');
+      } else if (phase === 'warning') {
+        badgeEl.textContent = 'FINAL 10s';
+        badgeEl.classList.add('warning');
+      } else if (phase === 'round') {
+        badgeEl.textContent = `ROUND ${round}`;
+        badgeEl.classList.add('round');
+      } else {
+        badgeEl.textContent = `ROUND ${round}`;
+      }
+    }
+
+    if (toggleBtn) {
+      toggleBtn.textContent = isRunning ? 'Pause' : 'Start Timer';
+      toggleBtn.classList.toggle('primary', !isRunning);
+    }
+  }
+
   public updateButtons(state: AppState, isTuning = false): void {
     document.querySelectorAll('#modeSeg button').forEach((b) => {
       const btn = b as HTMLElement;
@@ -411,6 +453,28 @@ export class HudController {
     const drillVoice = document.getElementById('drillVoice') as HTMLInputElement | null;
     drillVoice?.addEventListener('change', () => {
       this.handlers.onDrillOptionToggle('voice', drillVoice.checked);
+    });
+
+    // Timer Duration Segment
+    document.querySelectorAll('#timerDurationSeg button').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const dur = Number((btn as HTMLElement).dataset.duration);
+        if (!isNaN(dur)) {
+          this.handlers.onTimerDurationChange(dur);
+          document.querySelectorAll('#timerDurationSeg button').forEach((b) => {
+            b.setAttribute('aria-pressed', String(b === btn));
+          });
+        }
+      });
+    });
+
+    // Timer Action Buttons
+    document.getElementById('timerToggleBtn')?.addEventListener('click', () => {
+      this.handlers.onTimerToggle();
+    });
+
+    document.getElementById('timerResetBtn')?.addEventListener('click', () => {
+      this.handlers.onTimerReset();
     });
   }
 }

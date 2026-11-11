@@ -25,6 +25,7 @@ export * from './ui/calibrator';
 export * from './data/mistakes';
 export * from './storage/combos';
 export * from './ui/comboBuilder';
+export * from './drill/timer';
 
 import type { AppState, Technique, JointIdentifier, AnatomicalMarker, Pose } from './types/kinematics';
 import { BASE_TECHNIQUES, COMBO_DEFS } from './data/techniques';
@@ -32,6 +33,7 @@ import { TECHNIQUE_MISTAKES } from './data/mistakes';
 import { compileAllTechniques, buildCombo } from './engine/combos';
 import { CustomComboStorage } from './storage/combos';
 import { ComboBuilderModal } from './ui/comboBuilder';
+import { RoundTimer } from './drill/timer';
 import { D, poseAt, mirrorPose, sideName } from './engine/kinematics';
 import { buildArena } from './engine/arena';
 import {
@@ -176,6 +178,23 @@ const drillCoach = new DrillCoach(ALL_TECHNIQUES, {
     state.playing = false;
   },
 });
+
+const roundTimer = new RoundTimer(
+  { roundDurationSec: 180, restDurationSec: 60, totalRounds: 3 },
+  {
+    onTick: (remaining, round, phase) => {
+      hud.updateTimer(remaining, round, phase, roundTimer.isRunning);
+    },
+    onPhaseChange: (phase, round) => {
+      hud.updateTimer(roundTimer.remaining, round, phase, roundTimer.isRunning);
+      if (phase === 'rest') {
+        if (state.drill) drillCoach.stop();
+      } else if (phase === 'round') {
+        if (state.drill) drillCoach.start(performance.now());
+      }
+    },
+  }
+);
 
 let tunedPose: Pose | null = null;
 
@@ -522,6 +541,37 @@ const hud = new HudController(
         state.playing = false;
         comboBuilderModal.open();
       }
+    },
+    onTimerToggle: () => {
+      if (roundTimer.isRunning) {
+        roundTimer.pause();
+      } else {
+        roundTimer.start();
+      }
+      hud.updateTimer(
+        roundTimer.remaining,
+        roundTimer.round,
+        roundTimer.currentPhase,
+        roundTimer.isRunning
+      );
+    },
+    onTimerReset: () => {
+      roundTimer.reset();
+      hud.updateTimer(
+        roundTimer.remaining,
+        roundTimer.round,
+        roundTimer.currentPhase,
+        roundTimer.isRunning
+      );
+    },
+    onTimerDurationChange: (sec) => {
+      roundTimer.setRoundDuration(sec);
+      hud.updateTimer(
+        roundTimer.remaining,
+        roundTimer.round,
+        roundTimer.currentPhase,
+        roundTimer.isRunning
+      );
     },
     onNextPhase: () => {
       if (state.playing) state.playing = false;

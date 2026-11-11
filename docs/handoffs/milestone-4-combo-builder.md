@@ -42,3 +42,4 @@ TASK-021 delivers an interactive, in-browser Combination Builder modal allowing 
 - **Unit Tests (`tests/unit/customCombos.test.ts`)**: 6 comprehensive unit tests covering storage load/save/delete/error-recovery and multi-strike timeline compilation (37/37 total project tests passing).
 - **Static Analysis**: `npm run lint` passes across all 23 modules with zero warnings or errors.
 - **Production Build**: `npm run build` compiles in 3.15s into `dist/`.
+

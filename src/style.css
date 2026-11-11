@@ -739,8 +739,80 @@ body.split #calibratorPanel {
 }
 
 /* ==========================================================================
-   Custom Combination Builder Modal
+   Drill & Combat Round Timer Subsystem
    ========================================================================== */
+.drill-timer-row {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.timer-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+}
+
+.timer-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 3px 6px;
+  border-radius: 3px;
+  background: var(--key);
+  color: var(--ink-2);
+}
+
+.timer-badge.round {
+  background: rgba(217, 68, 47, 0.25);
+  color: var(--red);
+  border: 1px solid rgba(217, 68, 47, 0.5);
+}
+
+.timer-badge.warning {
+  background: rgba(245, 158, 11, 0.25);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  animation: pulse 0.8s infinite alternate;
+}
+
+.timer-badge.rest {
+  background: rgba(43, 166, 80, 0.25);
+  color: #2ba650;
+  border: 1px solid rgba(43, 166, 80, 0.5);
+}
+
+.timer-digits {
+  font: 700 24px/1 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.timer-btn-row {
+  display: flex;
+  gap: 6px;
+}
+
+.timer-btn-row .btn {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.timer-btn-row .btn.primary {
+  background: var(--red);
+  color: #ffffff;
+  border-color: var(--red);
+}
+
 .combo-modal {
   position: fixed;
   inset: 0;
