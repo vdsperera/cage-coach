@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cagecraft 3D – MMA Technique Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Barlow:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <script type="module" crossorigin src="./assets/index-DE2D5VTx.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-u6aFyDV1.css">
+</head>
+<body>
+  <div id="stage"></div>
+  <div id="head" class="ui">
+    <h1>Cagecraft 3D<small>Technique viewer</small></h1>
+    <div class="seg panel" id="modeSeg">
+      <button data-mode="single" aria-pressed="true">Single<kbd>Tab</kbd></button>
+      <button data-mode="spar" aria-pressed="false">Sparring<kbd>Tab</kbd></button>
+    </div>
+    <div class="seg panel" id="stanceSeg">
+      <button data-stance="orthodox" aria-pressed="true">Orthodox</button>
+      <button data-stance="southpaw" aria-pressed="false">Southpaw<kbd>A</kbd></button>
+    </div>
+    <div class="seg panel" id="srcSeg">
+      <button data-src="clay" aria-pressed="true">Clay</button>
+      <button data-src="mocap" aria-pressed="false" disabled
+        title="Add a clips.json next to this page to enable motion capture">Mocap</button>
+    </div>
+  </div>
+  <div id="tools" class="ui">
+    <div class="seg panel" id="viewSeg">
+      <button data-opt="ghosts" aria-pressed="true">Ghosts<kbd>G</kbd></button>
+      <button data-opt="guides" aria-pressed="true">Guides<kbd>F</kbd></button>
+      <button data-opt="mistakes" id="mistakesBtn" aria-pressed="false">Mistakes<kbd>M</kbd></button>
+      <button data-opt="step" aria-pressed="false">Step<kbd>L</kbd></button>
+      <button data-opt="split" aria-pressed="false">Split<kbd>V</kbd></button>
+      <button data-opt="drill" aria-pressed="false">Drill<kbd>D</kbd></button>
+      <button data-opt="tune" id="tuneBtn" aria-pressed="false">Tune<kbd>T</kbd></button>
+      <button data-opt="builder" id="buildComboBtn" aria-pressed="false">+ Combo</button>
+    </div>
+    <div class="seg panel" id="speedSeg">
+      <button data-speed="1" aria-pressed="true">1×</button>
+      <button data-speed="0.5" aria-pressed="false">½×</button>
+      <button data-speed="0.25" aria-pressed="false">¼×</button>
+    </div>
+    <div class="seg panel" id="camSeg">
+      <button data-cam="0" aria-pressed="true">Front</button>
+      <button data-cam="1" aria-pressed="false">Side</button>
+      <button data-cam="2" aria-pressed="false">Above</button>
+      <button data-cam="3" aria-pressed="false">Behind</button>
+      <button data-cam="4" aria-pressed="false">Partner's eyes</button>
+    </div>
+  </div>
+  <div id="drill" class="ui panel">
+    <span class="lbl">Set</span>
+    <div class="seg" id="drillSet">
+      <button data-set="strike" aria-pressed="true">Striking</button>
+      <button data-set="grapple" aria-pressed="false">Grappling</button>
+      <button data-set="combo" aria-pressed="false">Combos</button>
+      <button data-set="all" aria-pressed="false">All</button>
+    </div>
+    <span class="lbl">Call every</span>
+    <div class="seg" id="drillGap">
+      <button data-gap="3" aria-pressed="false">3 s</button>
+      <button data-gap="5" aria-pressed="true">5 s</button>
+      <button data-gap="8" aria-pressed="false">8 s</button>
+    </div>
+    <label><input type="checkbox" id="drillTick" checked> Audio ticks</label>
+    <label><input type="checkbox" id="drillVoice" checked> Voice prompts</label>
+    <div class="drill-timer-row">
+      <span class="lbl">Round Timer</span>
+      <div class="seg" id="timerDurationSeg">
+        <button data-duration="180" aria-pressed="true">3 min</button>
+        <button data-duration="300" aria-pressed="false">5 min</button>
+      </div>
+      <div id="roundTimerDisplay" class="timer-display">
+        <span id="timerPhaseBadge" class="timer-badge">ROUND 1</span>
+        <span id="timerDigits" class="timer-digits">03:00</span>
+      </div>
+      <div class="timer-btn-row">
+        <button id="timerToggleBtn" class="btn primary">Start Timer</button>
+        <button id="timerResetBtn" class="btn">Reset</button>
+      </div>
+    </div>
+  </div>
+  <div id="callout" class="ui">
+    <div class="big"></div>
+    <div class="sub"></div>
+  </div>
+  <div id="card" class="ui panel">
+    <div class="name"><span id="techName">Jab</span><kbd id="techKey">1</kbd></div>
+    <div class="side" id="techSide"></div>
+    <div id="phases"></div>
+    <div id="phaseName"></div>
+    <p id="explain"></p>
+    <div id="stepBtns">
+      <button id="prevPh">Back<kbd>⌫</kbd></button>
+      <button id="nextPh">Next phase<kbd>Enter</kbd></button>
+    </div>
+    <div id="readouts">
+      <div>Lead knee bend<b id="r-lk">–</b></div>
+      <div>Rear knee bend<b id="r-rk">–</b></div>
+      <div>Lead elbow<b id="r-le">–</b></div>
+      <div>Rear elbow<b id="r-re">–</b></div>
+      <div>Hip turn<b id="r-hip">–</b></div>
+      <div>Torso lean<b id="r-lean">–</b></div>
+      <div>Head height<b id="r-head">–</b></div>
+      <div>Lead hand height<b id="r-hand">–</b></div>
+    </div>
+    <h4>Cues</h4>
+    <ul id="cues"></ul>
+    <div id="mistakeBox" class="mistake-box" style="display: none;">
+      <h4>⚠️ Common Mistake &amp; Fix</h4>
+      <div class="mistake-flaw" id="mistakeFlaw"></div>
+      <div class="mistake-consequence" id="mistakeConsequence"></div>
+      <div class="mistake-fix" id="mistakeFix"></div>
+    </div>
+    <h4>Your notes</h4>
+    <textarea id="notes"
+      placeholder="Your own notes or your coach's cues for this technique. Saved in this browser."></textarea>
+    <div id="notesRow"><button class="btn" id="exportNotes">Export all notes</button><span id="notesStatus"></span>
+    </div>
+    <div id="partner"></div>
+  </div>
+  <div id="hint" class="ui">
+    Drag to orbit, scroll to zoom. <kbd>Space</kbd> play/pause, <kbd>[</kbd> <kbd>]</kbd> step frames,
+    <kbd>Enter</kbd> next phase, <kbd>S</kbd> speed, <kbd>C</kbd> cameras, <kbd>A</kbd> southpaw, <kbd>D</kbd> drill, <kbd>M</kbd> mistakes, <kbd>T</kbd> tune.
+  </div>
+  <div id="keys" class="ui"></div>
+  <div class="vlabel" id="vl0">Orbit</div>
+  <div class="vlabel" id="vl1">Side</div>
+  <div class="vlabel" id="vl2">Top</div>
+  <div class="vlabel" id="vl3">Behind</div>
+</body>
+</html>
