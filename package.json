@@ -1,0 +1,21 @@
+{
+  "name": "cage-coach",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cagecraft 3D — Martial arts biomechanics visualizer, combination builder, and interactive drill coach",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "three": "^0.128.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.128.0",
+    "typescript": "^5.4.0",
+    "vite": "^5.2.0"
+  }
+}
+
