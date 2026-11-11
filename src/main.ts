@@ -7,8 +7,10 @@ export * from './drill/coach';
 export * from './engine/arena';
 export * from './engine/rig';
 export * from './engine/camera';
-export * from './engine/rig';
-export * from './engine/camera';
+export * from './engine/telemetry';
+export * from './engine/guides';
+export * from './engine/mocap';
+export * from './storage/notes';
 export * from './events/keyboard';
 
 import { BASE_TECHNIQUES, COMBO_DEFS } from './data/techniques';

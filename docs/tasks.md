@@ -81,7 +81,7 @@
 
 #### TASK-005: Harden Local-First Notes Persistence and JSON Exporter
 - **Layer:** 2 (Data models & persistence)
-- **Status:** `[x]` *(Completed in `mma.html`; ready for module extraction)*
+- **Status:** `[x]`
 - **Linked stories:** US-009
 - **Linked component:** Notes Persistence Manager (Resolves RF-08)
 - **Depends on:** TASK-004
@@ -109,7 +109,7 @@
 
 #### TASK-007: Implement Mocap Manifest Loader and Fallback Interface
 - **Layer:** 3 (Interfaces & external contracts)
-- **Status:** `[ ]`
+- **Status:** `[x]`
 - **Linked stories:** US-010 (Offline Fallback & Graceful Degradation)
 - **Linked component:** Optional Motion Capture Subsystem (FR-10)
 - **Depends on:** TASK-004
@@ -125,7 +125,7 @@
 
 #### TASK-008: Zero-Allocation Biomechanical Telemetry Calculation Service
 - **Layer:** 4 (Business logic)
-- **Status:** `[x]` *(Completed in `mma.html`; ready for module extraction)*
+- **Status:** `[x]`
 - **Linked stories:** US-004
 - **Linked component:** Biomechanical Telemetry Subsystem (Resolves RF-06)
 - **Depends on:** TASK-004
@@ -201,7 +201,7 @@
 
 #### TASK-014: 3D Visual Guidance Overlays with Cached Billboard Textures
 - **Layer:** 5 (UI & 3D WebGL)
-- **Status:** `[x]` *(Completed in `mma.html`; ready for module extraction)*
+- **Status:** `[x]`
 - **Linked stories:** US-006
 - **Linked component:** Visual Guides & Annotation Engine (Resolves RF-05)
 - **Depends on:** TASK-013
