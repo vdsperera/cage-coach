@@ -1,0 +1,1973 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cagecraft 3D – technique viewer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Barlow:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #232930;
+            --panel: rgba(31, 38, 48, .92);
+            --line: #3A4452;
+            --ink: #E8E6E1;
+            --ink-2: #A7AFBA;
+            --ink-3: #6F7987;
+            --red: #D9442F;
+            --blue: #3F7FD6;
+            --amber: #FFC53D;
+            --key: #2B3440;
+            --key-on: #D9442F;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                color-scheme: light;
+                --panel: rgba(244, 243, 239, .94);
+                --line: #D5D2CA;
+                --ink: #1D222A;
+                --ink-2: #4E5663;
+                --ink-3: #8B929D;
+                --key: #E6E3DC;
+            }
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            margin: 0;
+            height: 100%;
+            background: var(--bg);
+            overflow: hidden;
+            font-family: Barlow, system-ui, sans-serif;
+            color: var(--ink);
+            font-size: 14px;
+            line-height: 1.45
+        }
+
+        canvas {
+            display: block;
+            touch-action: none
+        }
+
+        #stage {
+            position: fixed;
+            inset: 0
+        }
+
+        .ui {
+            position: fixed;
+            z-index: 2
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            backdrop-filter: blur(6px)
+        }
+
+        button {
+            font-family: inherit
+        }
+
+        #head {
+            top: 14px;
+            left: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            max-width: 60vw
+        }
+
+        #head h1 {
+            margin: 0;
+            font: 700 24px/1 "Barlow Condensed", sans-serif;
+            letter-spacing: .01em
+        }
+
+        #head h1 small {
+            display: block;
+            font: 500 12px/1.3 Barlow, sans-serif;
+            color: var(--ink-2);
+            margin-top: 3px
+        }
+
+        .seg {
+            display: flex;
+            padding: 3px;
+            gap: 3px
+        }
+
+        .seg button {
+            border: 0;
+            background: transparent;
+            color: var(--ink-2);
+            padding: 6px 11px;
+            border-radius: 4px;
+            font: 500 13px Barlow, sans-serif;
+            cursor: pointer;
+            white-space: nowrap
+        }
+
+        .seg button[aria-pressed="true"] {
+            background: var(--key);
+            color: var(--ink)
+        }
+
+        .seg button kbd {
+            color: var(--ink-3);
+            margin-left: 6px;
+            font: 500 11px Barlow, sans-serif
+        }
+
+        .seg button:disabled {
+            opacity: .45;
+            cursor: default
+        }
+
+        #tools {
+            top: 14px;
+            right: 14px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            max-width: 640px
+        }
+
+        #tools .seg button {
+            padding: 6px 9px
+        }
+
+        #card {
+            right: 14px;
+            top: 72px;
+            width: 300px;
+            padding: 16px 18px 14px;
+            max-height: calc(100vh - 250px);
+            overflow: auto
+        }
+
+        body.split #card {
+            left: 14px;
+            right: auto
+        }
+
+        #card .name {
+            font: 700 30px/1 "Barlow Condensed", sans-serif;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline
+        }
+
+        #card .name kbd {
+            font: 500 13px Barlow, sans-serif;
+            color: var(--ink-3)
+        }
+
+        #card .side {
+            color: var(--ink-2);
+            margin: 4px 0 12px
+        }
+
+        #phases {
+            display: grid;
+            grid-auto-flow: column;
+            gap: 3px;
+            height: 6px;
+            margin-bottom: 6px
+        }
+
+        #phases i {
+            background: var(--key);
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden
+        }
+
+        #phases i.on {
+            background: var(--red)
+        }
+
+        #phases i b {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--ink)
+        }
+
+        #phaseName {
+            font-weight: 600;
+            margin-bottom: 2px;
+            min-height: 1.4em
+        }
+
+        #explain {
+            color: var(--ink-2);
+            margin: 0 0 10px;
+            min-height: 2.8em
+        }
+
+        #stepBtns {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px
+        }
+
+        #stepBtns button,
+        .btn {
+            flex: 1;
+            border: 1px solid var(--line);
+            background: var(--key);
+            color: var(--ink);
+            border-radius: 4px;
+            padding: 7px 8px;
+            font: 500 13px Barlow, sans-serif;
+            cursor: pointer
+        }
+
+        #stepBtns button kbd {
+            color: var(--ink-3);
+            margin-left: 4px;
+            font-size: 11px
+        }
+
+        #readouts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px 12px;
+            border-top: 1px solid var(--line);
+            padding: 9px 0 6px;
+            font-size: 13px
+        }
+
+        #readouts div {
+            display: flex;
+            justify-content: space-between;
+            color: var(--ink-2)
+        }
+
+        #readouts b {
+            color: var(--ink);
+            font-weight: 600;
+            font-variant-numeric: tabular-nums
+        }
+
+        h4 {
+            margin: 10px 0 4px;
+            font: 600 11px Barlow, sans-serif;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--ink-3)
+        }
+
+        #cues {
+            margin: 0;
+            padding: 0;
+            list-style: none
+        }
+
+        #cues li {
+            padding: 7px 0;
+            border-top: 1px solid var(--line);
+            color: var(--ink)
+        }
+
+        #notes {
+            width: 100%;
+            min-height: 64px;
+            resize: vertical;
+            background: var(--key);
+            color: var(--ink);
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            padding: 8px;
+            font: 400 13px Barlow, sans-serif
+        }
+
+        #notesRow {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px
+        }
+
+        #notesRow .btn {
+            flex: 0 0 auto;
+            padding: 5px 10px;
+            font-size: 12px
+        }
+
+        #notesRow span {
+            color: var(--ink-3);
+            font-size: 12px;
+            align-self: center
+        }
+
+        #partner {
+            margin-top: 10px;
+            color: var(--ink-2);
+            border-top: 1px solid var(--line);
+            padding-top: 8px
+        }
+
+        #partner span {
+            color: var(--blue);
+            font-weight: 500
+        }
+
+        #keys {
+            left: 14px;
+            right: 14px;
+            bottom: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            overflow-x: auto;
+            padding-bottom: 2px;
+            scrollbar-width: none
+        }
+
+        .row::-webkit-scrollbar {
+            display: none
+        }
+
+        .row>label {
+            flex: 0 0 84px;
+            color: var(--ink-3);
+            font: 500 12px Barlow, sans-serif
+        }
+
+        .key {
+            flex: 0 0 auto;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            padding: 7px 10px 7px 7px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            cursor: pointer;
+            color: var(--ink);
+            min-width: 118px
+        }
+
+        .key:focus-visible {
+            outline: 2px solid var(--blue);
+            outline-offset: 2px
+        }
+
+        .key kbd {
+            display: inline-grid;
+            place-items: center;
+            width: 26px;
+            height: 26px;
+            border-radius: 4px;
+            background: var(--key);
+            font: 700 14px "Barlow Condensed", sans-serif;
+            color: var(--ink)
+        }
+
+        .key.on {
+            border-color: var(--red)
+        }
+
+        .key.on kbd {
+            background: var(--key-on);
+            color: #fff
+        }
+
+        .key span {
+            font: 500 13px/1.1 Barlow, sans-serif;
+            text-align: left
+        }
+
+        .key span em {
+            display: block;
+            font-style: normal;
+            color: var(--ink-3);
+            font-size: 11px;
+            margin-top: 2px
+        }
+
+        #hint {
+            left: 14px;
+            bottom: 188px;
+            color: var(--ink-2);
+            font-size: 12px;
+            max-width: 440px
+        }
+
+        body.split #hint {
+            display: none
+        }
+
+        #hint kbd {
+            color: var(--ink);
+            font-weight: 500
+        }
+
+        .vlabel {
+            position: fixed;
+            z-index: 2;
+            display: none;
+            color: var(--ink-2);
+            font: 600 12px Barlow, sans-serif;
+            background: var(--panel);
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            padding: 3px 8px
+        }
+
+        body.split .vlabel {
+            display: block
+        }
+
+        #drill {
+            top: 72px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 12px;
+            display: none;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap
+        }
+
+        #drill.on {
+            display: flex
+        }
+
+        #drill .lbl {
+            color: var(--ink-3);
+            font-size: 12px;
+            margin-right: 2px
+        }
+
+        #drill label {
+            color: var(--ink-2);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px
+        }
+
+        #callout {
+            top: 38%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+            display: none
+        }
+
+        #callout.on {
+            display: block
+        }
+
+        #callout .big {
+            font: 700 clamp(40px, 8vw, 96px)/1 "Barlow Condensed", sans-serif;
+            color: var(--amber);
+            text-shadow: 0 2px 24px rgba(0, 0, 0, .6)
+        }
+
+        #callout .sub {
+            margin-top: 8px;
+            color: var(--ink);
+            font-size: 16px;
+            text-shadow: 0 1px 8px rgba(0, 0, 0, .6)
+        }
+
+        #callout .sub kbd {
+            display: inline-grid;
+            place-items: center;
+            min-width: 28px;
+            height: 28px;
+            padding: 0 6px;
+            border-radius: 4px;
+            background: var(--key);
+            font: 700 15px "Barlow Condensed", sans-serif;
+            margin-right: 6px
+        }
+
+        @media (max-width:760px) {
+            #head {
+                max-width: none
+            }
+
+            #card {
+                top: auto;
+                bottom: 196px;
+                left: 14px;
+                right: 14px;
+                width: auto;
+                padding: 12px 14px;
+                max-height: 40vh
+            }
+
+            #card .name {
+                font-size: 24px
+            }
+
+            #cues li {
+                padding: 5px 0
+            }
+
+            #hint {
+                display: none
+            }
+
+            #head h1 small {
+                display: none
+            }
+
+            #tools {
+                position: static;
+                max-width: none
+            }
+
+            .row>label {
+                flex-basis: 64px
+            }
+
+            #drill {
+                top: auto;
+                bottom: 196px;
+                left: 14px;
+                right: 14px;
+                transform: none
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="stage"></div>
+    <div id="head" class="ui">
+        <h1>Cagecraft 3D<small>Technique viewer</small></h1>
+        <div class="seg panel" id="modeSeg">
+            <button data-mode="single" aria-pressed="true">Single<kbd>Tab</kbd></button>
+            <button data-mode="spar" aria-pressed="false">Sparring<kbd>Tab</kbd></button>
+        </div>
+        <div class="seg panel" id="stanceSeg">
+            <button data-stance="orthodox" aria-pressed="true">Orthodox</button>
+            <button data-stance="southpaw" aria-pressed="false">Southpaw<kbd>A</kbd></button>
+        </div>
+        <div class="seg panel" id="srcSeg">
+            <button data-src="clay" aria-pressed="true">Clay</button>
+            <button data-src="mocap" aria-pressed="false" disabled
+                title="Add a clips.json next to this page to enable motion capture">Mocap<kbd>M</kbd></button>
+        </div>
+    </div>
+    <div id="tools" class="ui">
+        <div class="seg panel" id="viewSeg">
+            <button data-opt="ghosts" aria-pressed="true">Ghosts<kbd>G</kbd></button>
+            <button data-opt="guides" aria-pressed="true">Guides<kbd>F</kbd></button>
+            <button data-opt="step" aria-pressed="false">Step<kbd>L</kbd></button>
+            <button data-opt="split" aria-pressed="false">Split<kbd>V</kbd></button>
+            <button data-opt="drill" aria-pressed="false">Drill<kbd>D</kbd></button>
+        </div>
+        <div class="seg panel" id="speedSeg">
+            <button data-speed="1" aria-pressed="true">1×</button>
+            <button data-speed="0.5" aria-pressed="false">½×</button>
+            <button data-speed="0.25" aria-pressed="false">¼×</button>
+        </div>
+        <div class="seg panel" id="camSeg">
+            <button data-cam="0" aria-pressed="true">Front</button>
+            <button data-cam="1" aria-pressed="false">Side</button>
+            <button data-cam="2" aria-pressed="false">Above</button>
+            <button data-cam="3" aria-pressed="false">Behind</button>
+            <button data-cam="4" aria-pressed="false">Partner's eyes</button>
+        </div>
+    </div>
+    <div id="drill" class="ui panel">
+        <span class="lbl">Set</span>
+        <div class="seg" id="drillSet">
+            <button data-set="strike" aria-pressed="true">Striking</button>
+            <button data-set="grapple" aria-pressed="false">Grappling</button>
+            <button data-set="combo" aria-pressed="false">Combos</button>
+            <button data-set="all" aria-pressed="false">All</button>
+        </div>
+        <span class="lbl">Call every</span>
+        <div class="seg" id="drillGap">
+            <button data-gap="3" aria-pressed="false">3 s</button>
+            <button data-gap="5" aria-pressed="true">5 s</button>
+            <button data-gap="8" aria-pressed="false">8 s</button>
+        </div>
+        <label><input type="checkbox" id="drillVoice" checked> Voice</label>
+        <label><input type="checkbox" id="drillTick" checked> Tick</label>
+    </div>
+    <div id="callout" class="ui">
+        <div class="big"></div>
+        <div class="sub"></div>
+    </div>
+    <div id="card" class="ui panel">
+        <div class="name"><span id="techName">Jab</span><kbd id="techKey">1</kbd></div>
+        <div class="side" id="techSide"></div>
+        <div id="phases"></div>
+        <div id="phaseName"></div>
+        <p id="explain"></p>
+        <div id="stepBtns">
+            <button id="prevPh">Back<kbd>⌫</kbd></button>
+            <button id="nextPh">Next phase<kbd>Enter</kbd></button>
+        </div>
+        <div id="readouts">
+            <div>Lead knee bend<b id="r-lk">–</b></div>
+            <div>Rear knee bend<b id="r-rk">–</b></div>
+            <div>Lead elbow<b id="r-le">–</b></div>
+            <div>Rear elbow<b id="r-re">–</b></div>
+            <div>Hip turn<b id="r-hip">–</b></div>
+            <div>Torso lean<b id="r-lean">–</b></div>
+            <div>Head height<b id="r-head">–</b></div>
+            <div>Lead hand height<b id="r-hand">–</b></div>
+        </div>
+        <h4>Cues</h4>
+        <ul id="cues"></ul>
+        <h4>Your notes</h4>
+        <textarea id="notes"
+            placeholder="Your own notes or your coach's cues for this technique. Saved in this browser."></textarea>
+        <div id="notesRow"><button class="btn" id="exportNotes">Export all notes</button><span id="notesStatus"></span>
+        </div>
+        <div id="partner"></div>
+    </div>
+    <div id="hint" class="ui">
+        Drag to orbit, scroll to zoom. <kbd>Space</kbd> play/pause, <kbd>[</kbd> <kbd>]</kbd> step frames,
+        <kbd>Enter</kbd> next phase, <kbd>S</kbd> speed, <kbd>C</kbd> cameras, <kbd>A</kbd> southpaw, <kbd>D</kbd>
+        drill.
+    </div>
+    <div id="keys" class="ui"></div>
+    <div class="vlabel" id="vl0">Orbit</div>
+    <div class="vlabel" id="vl1">Side</div>
+    <div class="vlabel" id="vl2">Top</div>
+    <div class="vlabel" id="vl3">Behind</div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        (() => {
+            const T = THREE;
+            const D = Math.PI / 180;
+            /* ---------------- Pose conventions ----------------
+            Angles in degrees. Shoulders and hips rotate Y, then X, then Z (YXZ). Other joints XYZ.
+            Limb X negative = swings forward. Knee X positive = bend. Ankle X positive = toes down. Wrist Z = fist rotation.
+            Spine / root X positive = lean forward, negative = lean back. Spine Z positive = lean to the right.
+            Head X positive = chin down.
+            Red fighter faces +Z with the left (lead) side at +X in orthodox. Southpaw mirrors every pose at playback.
+            Partner poses are in the partner's own frame.
+            */
+            const STANCE = {
+                pos: [0, -0.05, 0], root: [0, 0, 0], spine: [4, -15, 0], head: [10, 0, 0],
+                lSh: [-65, -15, 0], lEl: [-105, 0, 0], rSh: [-60, 22, 0], rEl: [-115, 0, 0],
+                lHip: [-22, 0, 0], lKnee: [25, 0, 0], rHip: [18, 0, 0], rKnee: [30, 0, 0],
+                lWrist: [0, 0, 0], rWrist: [0, 0, 0], lAnkle: [0, 0, 0], rAnkle: [0, 0, 0]
+            };
+            const GUARD_TIGHT = { lSh: [-80, -20, 0], lEl: [-120, 0, 0], rSh: [-78, 28, 0], rEl: [-130, 0, 0], head: [14, 0, 0] };
+            const LIE = {
+                pos: [0, -0.78, 0], root: [-90, 0, 0], spine: [0, 0, 0], head: [0, 0, 0],
+                lHip: [-30, 0, 10], rHip: [-30, 0, -10], lKnee: [60, 0, 0], rKnee: [60, 0, 0],
+                lSh: [-70, -10, 0], lEl: [-70, 0, 0], rSh: [-70, 10, 0], rEl: [-70, 0, 0]
+            };
+            const M = (...o) => Object.assign({}, ...o);
+            /* ---------------- Striking ---------------- */
+            const JAB_IMPACT = { lSh: [-94, -26, 0], lEl: [-4, 0, 0], lWrist: [0, 0, -80], spine: [6, -32, 0], pos: [0, -0.05, 0.12], head: [8, 0, 0], rSh: [-78, 28, 0], rEl: [-130, 0, 0] };
+            const JAB = [{ t: 0 }, { t: .32, p: JAB_IMPACT }, { t: .45, p: JAB_IMPACT }, { t: 1 }];
+            const CROSS_IMPACT = {
+                rSh: [-94, 32, 0], rEl: [-4, 0, 0], rWrist: [0, 0, 80], spine: [6, 42, 0], root: [0, 14, 0], pos: [0, -0.07, 0.08],
+                rHip: [20, 38, 0], rKnee: [42, 0, 0], rAnkle: [35, 0, 0], head: [10, 0, 0], lSh: [-80, -20, 0], lEl: [-125, 0, 0]
+            };
+            const CROSS = [{ t: 0 }, { t: .38, p: CROSS_IMPACT }, { t: .5, p: CROSS_IMPACT }, { t: 1 }];
+            const HOOK_IMPACT = { lSh: [-100, -12, 0], lEl: [0, 0, -95], spine: [4, -48, 0], pos: [-0.02, -0.06, 0.04], lHip: [-22, -35, 0], lKnee: [30, 0, 0], lAnkle: [25, 0, 0], rSh: [-78, 28, 0], rEl: [-130, 0, 0] };
+            const HOOK = [{ t: 0 },
+            { t: .28, p: { lSh: [-95, 60, 0], lEl: [0, 0, -70], spine: [4, 12, 0], pos: [0.04, -0.08, 0], lKnee: [35, 0, 0], rSh: [-78, 28, 0], rEl: [-130, 0, 0] } },
+            { t: .48, p: HOOK_IMPACT }, { t: .6, p: HOOK_IMPACT }, { t: 1 }];
+            const UPPER_IMPACT = { rSh: [-52, 32, 0], rEl: [-116, 0, 0], spine: [-4, 40, 0], root: [0, 10, 0], pos: [0, -0.03, 0.08], rHip: [20, 30, 0], rKnee: [36, 0, 0], rAnkle: [25, 0, 0], lSh: [-80, -20, 0], lEl: [-125, 0, 0] };
+            const UPPERCUT = [{ t: 0 },
+            { t: .3, p: { rSh: [-30, 22, 0], rEl: [-100, 0, 0], spine: [14, 15, 0], pos: [-0.03, -0.14, 0.04], rKnee: [48, 0, 0], lKnee: [35, 0, 0], lSh: [-80, -20, 0], lEl: [-125, 0, 0] } },
+            { t: .5, p: UPPER_IMPACT }, { t: .62, p: UPPER_IMPACT }, { t: 1 }];
+            const ELBOW_IMPACT = { lSh: [-102, -15, 0], lEl: [0, 0, -150], spine: [4, -52, 0], pos: [-0.02, -0.06, 0.12], lHip: [-22, -30, 0], lAnkle: [20, 0, 0], rSh: [-78, 28, 0], rEl: [-130, 0, 0] };
+            const ELBOW = [{ t: 0 },
+            { t: .3, p: { lSh: [-88, 55, 0], lEl: [0, 0, -150], spine: [4, 15, 0], pos: [0.03, -0.07, 0.02], rSh: [-78, 28, 0], rEl: [-130, 0, 0] } },
+            { t: .5, p: ELBOW_IMPACT }, { t: .62, p: ELBOW_IMPACT }, { t: 1 }];
+            const KNEE_IMPACT = {
+                rHip: [-105, 10, 0], rKnee: [135, 0, 0], rAnkle: [45, 0, 0], spine: [26, 8, 0], lSh: [-40, -10, 0], lEl: [-110, 0, 0], rSh: [-40, 15, 0], rEl: [-110, 0, 0],
+                pos: [0, 0.0, 0.14], lHip: [-10, 0, 0], lKnee: [18, 0, 0], lAnkle: [30, 0, 0], head: [8, 0, 0]
+            };
+            const KNEE = [{ t: 0 },
+            { t: .3, p: { lSh: [-82, -10, 0], lEl: [-60, 0, 0], rSh: [-82, 15, 0], rEl: [-60, 0, 0], pos: [0, -0.04, 0.06], spine: [8, -5, 0] } },
+            { t: .55, p: KNEE_IMPACT }, { t: .68, p: KNEE_IMPACT }, { t: 1 }];
+            const TEEP_CHAMBER = { lHip: [-95, 0, 0], lKnee: [125, 0, 0], lAnkle: [-25, 0, 0], spine: [-12, -10, 0], pos: [0, 0.0, 0.02], rKnee: [26, 0, 0], rHip: [6, 0, 0], lSh: [-52, -15, 0], rSh: [-52, 22, 0] };
+            const TEEP_IMPACT = { lHip: [-82, -6, 0], lKnee: [4, 0, 0], lAnkle: [-30, 0, 0], spine: [-24, -10, 0], pos: [0, 0.0, 0.1], rKnee: [20, 0, 0], rHip: [4, 0, 0], lSh: [-52, -15, 0], rSh: [-52, 22, 0] };
+            const TEEP = [{ t: 0 }, { t: .3, p: TEEP_CHAMBER }, { t: .5, p: TEEP_IMPACT }, { t: .62, p: TEEP_IMPACT }, { t: .75, p: M(TEEP_CHAMBER, { pos: [0, 0, 0.04] }) }, { t: 1 }];
+            const RH_IMPACT = {
+                rHip: [-86, -56, 0], rKnee: [8, 0, 0], rAnkle: [35, 0, 0], spine: [-20, 24, -26], root: [0, 56, 0], pos: [0.06, 0.0, 0.1],
+                lHip: [-16, 36, 0], lKnee: [26, 0, 0], lAnkle: [20, 0, 0], rSh: [-10, 10, 0], rEl: [-40, 0, 0], lSh: [-80, -15, 0], lEl: [-120, 0, 0]
+            };
+            const ROUNDHOUSE = [{ t: 0 },
+            { t: .2, p: { pos: [0.08, -0.04, 0.08], lHip: [-18, 40, 0], lKnee: [28, 0, 0], root: [0, 8, 0] } },
+            {
+                t: .36, p: {
+                    rHip: [-72, -80, 0], rKnee: [112, 0, 0], rAnkle: [30, 0, 0], spine: [-14, 22, -18], root: [0, 26, 0], pos: [0.08, -0.01, 0.1],
+                    lHip: [-16, 55, 0], lKnee: [30, 0, 0], rSh: [-28, 10, 0], rEl: [-55, 0, 0], lSh: [-80, -15, 0], lEl: [-120, 0, 0]
+                }
+            },
+            { t: .5, p: RH_IMPACT }, { t: .6, p: RH_IMPACT },
+            { t: .74, p: { rHip: [-70, -30, 0], rKnee: [100, 0, 0], spine: [-12, 16, -14], root: [0, 34, 0], pos: [0.06, -0.02, 0.08], lHip: [-16, 45, 0] } },
+            { t: 1 }];
+            const SLIP_POSE = { spine: [16, 24, 24], head: [6, 0, 10], pos: [-0.07, -0.12, 0], rKnee: [46, 0, 0], lKnee: [32, 0, 0], lSh: [-80, -20, 0], lEl: [-125, 0, 0], rSh: [-82, 30, 0], rEl: [-135, 0, 0] };
+            const SLIP = [{ t: 0 }, { t: .38, p: SLIP_POSE }, { t: .55, p: SLIP_POSE }, { t: 1 }];
+            const CHECK_POSE = { lHip: [-62, 28, 0], lKnee: [112, 0, 0], lAnkle: [20, 0, 0], spine: [-4, -10, -6], pos: [0, -0.02, 0], rKnee: [22, 0, 0], rHip: [6, 0, 0], lSh: [-80, -20, 0], lEl: [-125, 0, 0], rSh: [-80, 28, 0], rEl: [-135, 0, 0] };
+            const CHECK = [{ t: 0 }, { t: .38, p: CHECK_POSE }, { t: .56, p: CHECK_POSE }, { t: 1 }];
+            const headSnap = (ti) => [{ t: 0 }, { t: ti - .05 }, { t: ti + .05, p: { head: [-22, 0, 0], spine: [-8, 0, 0], pos: [0, -0.05, -0.07] } },
+            { t: ti + .35, p: { head: [10, 0, 0], spine: [0, 0, 0], pos: [0, -0.05, -0.04] } }, { t: 1 }];
+            const COVER = { rSh: [-112, 36, 0], rEl: [-142, 0, 0], head: [12, 0, 14], spine: [0, -12, 10], pos: [0, -0.06, -0.03] };
+            const coverRight = (ti) => [{ t: 0 }, { t: ti - .12 }, { t: ti, p: COVER }, { t: ti + .25, p: COVER }, { t: 1 }];
+            const chinUp = (ti) => [{ t: 0 }, { t: ti - .05 }, { t: ti + .05, p: { head: [-28, 0, 0], spine: [-12, 0, 0], pos: [0, -0.03, -0.04] } }, { t: ti + .4, p: { head: [0, 0, 0], spine: [-4, 0, 0] } }, { t: 1 }];
+            const HUNCH = { spine: [26, 0, 0], head: [0, 0, 0], lSh: [-45, -15, 0], lEl: [-20, 0, 0], rSh: [-45, 20, 0], rEl: [-20, 0, 0], pos: [0, -0.08, -0.08] };
+            const hunch = (ti) => [{ t: 0 }, { t: ti - .15, p: { lSh: [-70, -10, 0], lEl: [-70, 0, 0], rSh: [-70, 15, 0], rEl: [-70, 0, 0], spine: [10, 0, 0] } },
+            { t: ti + .03, p: HUNCH }, { t: ti + .3, p: HUNCH }, { t: 1 }];
+            const pushedBack = (ti) => [{ t: 0 }, { t: ti - .05 }, { t: ti + .1, p: { pos: [0, -0.06, -0.26], spine: [-10, 0, 0], lSh: [-50, -10, 0], rSh: [-50, 15, 0] } },
+            { t: ti + .4, p: { pos: [0, -0.06, -0.24], spine: [-4, 0, 0] } }, { t: 1, p: { pos: [0, -0.05, -0.1] } }];
+            const CHECK_B = { lHip: [-62, 28, 0], lKnee: [112, 0, 0], spine: [-4, -8, -6], rKnee: [22, 0, 0], rHip: [6, 0, 0], lSh: [-82, -20, 0], lEl: [-130, 0, 0] };
+            const checkLeft = (ti) => [{ t: 0 }, { t: ti - .18 }, { t: ti - .02, p: CHECK_B }, { t: ti + .2, p: CHECK_B }, { t: 1 }];
+            /* ---------------- Grappling: clinch and takedowns ---------------- */
+            const TIE_GRIP = { pos: [0, -0.05, 0.42], lSh: [-100, -28, 0], lEl: [-25, 0, 0], rSh: [-100, 32, 0], rEl: [-25, 0, 0], spine: [6, -10, 0], head: [6, 0, 0] };
+            const TIE_SNAP = { pos: [0, -0.1, 0.4], lSh: [-70, -28, 0], lEl: [-70, 0, 0], rSh: [-70, 32, 0], rEl: [-70, 0, 0], spine: [22, -10, 0], lKnee: [35, 0, 0], rKnee: [40, 0, 0], head: [10, 0, 0] };
+            const TIE_A = [{ t: 0 }, { t: .3, p: { pos: [0, -0.05, 0.4], lSh: [-80, -15, 0], lEl: [-70, 0, 0], rSh: [-80, 22, 0], rEl: [-70, 0, 0], spine: [8, -10, 0] } },
+            { t: .5, p: TIE_GRIP }, { t: .7, p: TIE_SNAP }, { t: .85, p: TIE_SNAP }, { t: 1 }];
+            const TIE_B_DOWN = { pos: [0, -0.08, 0.33], spine: [35, 0, 0], head: [20, 0, 0], lSh: [-40, -10, 0], lEl: [-60, 0, 0], rSh: [-40, 15, 0], rEl: [-60, 0, 0], lKnee: [35, 0, 0], rKnee: [40, 0, 0] };
+            const TIE_B = [{ t: 0 }, { t: .3, p: { pos: [0, -0.05, 0.33], lSh: [-70, -15, 0], rSh: [-70, 22, 0] } },
+            { t: .5, p: { pos: [0, -0.05, 0.33], lSh: [-75, -10, 0], lEl: [-80, 0, 0], rSh: [-75, 15, 0], rEl: [-80, 0, 0] } },
+            { t: .7, p: TIE_B_DOWN }, { t: .85, p: TIE_B_DOWN }, { t: 1 }];
+            const LEVEL = {
+                pos: [0, -0.3, 0.15], spine: [30, -5, 0], lHip: [-60, 0, 0], lKnee: [70, 0, 0], rHip: [10, 0, 0], rKnee: [60, 0, 0],
+                lSh: [-60, -15, 0], lEl: [-60, 0, 0], rSh: [-60, 20, 0], rEl: [-60, 0, 0], head: [-10, 0, 0]
+            };
+            const PENETRATE = {
+                pos: [0, -0.45, 0.62], spine: [40, -5, 0], lHip: [-80, 0, 0], lKnee: [100, 0, 0], rHip: [30, 0, 0], rKnee: [40, 0, 0],
+                lSh: [-70, -30, 0], lEl: [-70, 0, 0], rSh: [-70, 35, 0], rEl: [-70, 0, 0], head: [-25, 0, 0]
+            };
+            const DRIVE = {
+                pos: [0, -0.28, 0.85], spine: [15, -5, 0], lHip: [-50, 0, 0], lKnee: [60, 0, 0], rHip: [20, 0, 0], rKnee: [30, 0, 0],
+                lSh: [-60, -30, 0], lEl: [-80, 0, 0], rSh: [-60, 35, 0], rEl: [-80, 0, 0], head: [-20, 0, 0]
+            };
+            const DOUBLE_A = [{ t: 0 }, { t: .25, p: LEVEL }, { t: .45, p: PENETRATE }, { t: .65, p: DRIVE }, { t: .8, p: DRIVE }, { t: 1 }];
+            const LIFTED = {
+                pos: [0, 0.12, 0.35], root: [-35, 0, 0], lHip: [-30, 0, 0], lKnee: [70, 0, 0], rHip: [-20, 0, 0], rKnee: [70, 0, 0],
+                spine: [-10, 0, 0], lSh: [-40, -10, 0], lEl: [-20, 0, 0], rSh: [-40, 15, 0], rEl: [-20, 0, 0]
+            };
+            const DOUBLE_B = [{ t: 0 }, { t: .4, p: { lSh: [-40, -10, 0], lEl: [-40, 0, 0], rSh: [-40, 15, 0], rEl: [-40, 0, 0], spine: [10, 0, 0] } },
+            { t: .65, p: LIFTED }, { t: .8, p: LIFTED }, { t: 1 }];
+            const STUFFED = {
+                pos: [0, -0.58, 0.5], spine: [45, -5, 0], lHip: [-60, 0, 0], lKnee: [110, 0, 0], rHip: [-40, 0, 0], rKnee: [110, 0, 0],
+                lSh: [-70, -30, 0], lEl: [-70, 0, 0], rSh: [-70, 35, 0], rEl: [-70, 0, 0], head: [-20, 0, 0]
+            };
+            const SHOT_STUFFED = [{ t: 0 }, { t: .25, p: LEVEL }, { t: .45, p: PENETRATE }, { t: .6, p: STUFFED }, { t: .8, p: STUFFED }, { t: 1 }];
+            const SINGLE_CATCH = {
+                pos: [-0.1, -0.42, 0.55], spine: [35, -25, 0], root: [0, -20, 0], lHip: [-80, 0, 0], lKnee: [100, 0, 0], rHip: [30, 0, 0], rKnee: [40, 0, 0],
+                lSh: [-80, -50, 0], lEl: [-70, 0, 0], rSh: [-80, 10, 0], rEl: [-70, 0, 0], head: [-25, 0, 0]
+            };
+            const SINGLE_LIFT = {
+                pos: [-0.05, -0.2, 0.6], spine: [10, -20, 0], root: [0, -20, 0], lHip: [-40, 0, 0], lKnee: [50, 0, 0], rHip: [15, 0, 0], rKnee: [30, 0, 0],
+                lSh: [-70, -45, 0], lEl: [-100, 0, 0], rSh: [-70, 5, 0], rEl: [-100, 0, 0], head: [-15, 0, 0]
+            };
+            const SINGLE_A = [{ t: 0 }, { t: .25, p: LEVEL }, { t: .45, p: SINGLE_CATCH }, { t: .65, p: SINGLE_LIFT }, { t: .8, p: SINGLE_LIFT }, { t: 1 }];
+            const HOPPING = {
+                lHip: [-75, 10, 0], lKnee: [70, 0, 0], rHip: [5, 0, 0], rKnee: [25, 0, 0], spine: [-15, 0, 0], pos: [0, -0.02, -0.15],
+                lSh: [-70, -10, 0], lEl: [-40, 0, 0], rSh: [-70, 15, 0], rEl: [-40, 0, 0]
+            };
+            const SINGLE_B = [{ t: 0 }, { t: .4, p: { lSh: [-40, -10, 0], rSh: [-40, 15, 0], spine: [10, 0, 0] } }, { t: .65, p: HOPPING }, { t: .8, p: HOPPING }, { t: 1 }];
+            const TOSS_LOAD = {
+                root: [0, 180, 0], pos: [0, -0.3, 0.9], lHip: [-40, 0, 0], rHip: [-40, 0, 0], lKnee: [70, 0, 0], rKnee: [70, 0, 0], spine: [20, 0, 0],
+                lSh: [-80, -30, 0], lEl: [-70, 0, 0], rSh: [45, -50, 0], rEl: [-60, 0, 0], head: [0, 0, 0]
+            };
+            const TOSS_THROW = {
+                root: [0, 180, 0], pos: [0, -0.2, 0.9], lHip: [-20, 0, 0], rHip: [-20, 0, 0], lKnee: [30, 0, 0], rKnee: [30, 0, 0], spine: [60, 0, 0],
+                lSh: [-130, -20, 0], lEl: [-30, 0, 0], rSh: [-10, -40, 0], rEl: [-40, 0, 0], head: [-30, 0, 0]
+            };
+            const TOSS_END = M(TOSS_THROW, { spine: [50, 0, 0], lSh: [-110, -20, 0], rSh: [-20, -40, 0], pos: [0, -0.22, 0.9] });
+            const TOSS_A = [{ t: 0 }, { t: .2, p: { pos: [0, -0.05, 0.45], lSh: [-80, -20, 0], lEl: [-70, 0, 0], rSh: [-80, 25, 0], rEl: [-70, 0, 0] } },
+            { t: .4, p: TOSS_LOAD }, { t: .6, p: TOSS_THROW }, { t: .78, p: TOSS_END }, { t: 1, p: TOSS_END }];
+            const TOSS_B_AIR = {
+                pos: [0, 0.13, 0.7], root: [135, 0, 0], lHip: [-30, 0, 0], rHip: [-30, 0, 0], lKnee: [30, 0, 0], rKnee: [30, 0, 0], spine: [0, 0, 0],
+                lSh: [-120, -20, 0], lEl: [-20, 0, 0], rSh: [-120, 20, 0], rEl: [-20, 0, 0], head: [0, 0, 0]
+            };
+            const TOSS_B_LAND = {
+                pos: [0, -0.78, 1.15], root: [270, 0, 0], lHip: [-30, 0, 10], rHip: [-30, 0, -10], lKnee: [60, 0, 0], rKnee: [60, 0, 0], spine: [0, 0, 0],
+                lSh: [-100, -20, 0], lEl: [-20, 0, 0], rSh: [-100, 20, 0], rEl: [-20, 0, 0], head: [0, 0, 0]
+            };
+            const TOSS_B = [{ t: 0 }, { t: .2, p: { pos: [0, -0.05, 0.3], lSh: [-70, -15, 0], lEl: [-70, 0, 0], rSh: [-70, 20, 0], rEl: [-70, 0, 0] } },
+            { t: .4, p: { pos: [0, 0.0, 0.4], spine: [15, 0, 0], lSh: [-80, -15, 0], lEl: [-60, 0, 0], rSh: [-80, 20, 0], rEl: [-60, 0, 0] } },
+            { t: .6, p: TOSS_B_AIR }, { t: .78, p: TOSS_B_LAND }, { t: 1, p: TOSS_B_LAND }];
+            const SPRAWLED = {
+                pos: [0, -0.5, -0.05], root: [60, 0, 0], spine: [10, 0, 0], head: [-40, 0, 0], lHip: [30, 0, 15], rHip: [30, 0, -15], lKnee: [10, 0, 0], rKnee: [10, 0, 0],
+                lSh: [-80, -15, 0], lEl: [-40, 0, 0], rSh: [-80, 20, 0], rEl: [-40, 0, 0]
+            };
+            const SPRAWL_A = [{ t: 0 }, { t: .28, p: { lSh: [-70, -15, 0], lEl: [-50, 0, 0], rSh: [-70, 20, 0], rEl: [-50, 0, 0], spine: [15, 0, 0] } },
+            { t: .5, p: SPRAWLED }, { t: .75, p: SPRAWLED }, { t: 1 }];
+            /* ---------------- Grappling: ground positions ---------------- */
+            const MOUNT_TOP = {
+                pos: [0, -0.55, 1.45], root: [0, 0, 0], spine: [25, 0, 0], head: [0, 0, 0], lHip: [-60, 0, 35], rHip: [-60, 0, -35], lKnee: [120, 0, 0], rKnee: [120, 0, 0],
+                lSh: [-95, -15, 0], lEl: [-15, 0, 0], rSh: [-95, 20, 0], rEl: [-15, 0, 0]
+            };
+            const MOUNT_UP = M(MOUNT_TOP, { spine: [0, 0, 0], lSh: [-60, -10, 0], lEl: [-110, 0, 0], rSh: [-60, 15, 0], rEl: [-110, 0, 0], head: [8, 0, 0] });
+            const MOUNT_A = [{ t: 0, p: MOUNT_TOP }, { t: .45, p: MOUNT_TOP }, { t: .65, p: MOUNT_UP }, { t: .85, p: MOUNT_UP }, { t: 1, p: MOUNT_TOP }];
+            const MOUNT_B_FRAME = M(LIE, { lSh: [-80, -15, 0], lEl: [-60, 0, 0], rSh: [-80, 15, 0], rEl: [-60, 0, 0] });
+            const MOUNT_B_BRIDGE = M(MOUNT_B_FRAME, { pos: [0, -0.64, 0], lHip: [-45, 0, 10], rHip: [-45, 0, -10], lKnee: [95, 0, 0], rKnee: [95, 0, 0] });
+            const MOUNT_B = [{ t: 0, p: MOUNT_B_FRAME }, { t: .45, p: MOUNT_B_FRAME }, { t: .65, p: MOUNT_B_BRIDGE }, { t: .85, p: MOUNT_B_BRIDGE }, { t: 1, p: MOUNT_B_FRAME }];
+            const GUARD_TOP = {
+                pos: [0, -0.45, 1.05], root: [0, 0, 0], spine: [10, 0, 0], head: [5, 0, 0], lHip: [0, 0, 15], rHip: [0, 0, -15], lKnee: [90, 0, 0], rKnee: [90, 0, 0],
+                lSh: [-55, -15, 0], lEl: [-10, 0, 0], rSh: [-55, 20, 0], rEl: [-10, 0, 0]
+            };
+            const GUARD_UP = M(GUARD_TOP, { spine: [-5, 0, 0], lSh: [-60, -15, 0], lEl: [-95, 0, 0], rSh: [-60, 20, 0], rEl: [-95, 0, 0] });
+            const GUARD_A = [{ t: 0, p: GUARD_TOP }, { t: .4, p: GUARD_TOP }, { t: .6, p: GUARD_UP }, { t: .85, p: GUARD_UP }, { t: 1, p: GUARD_TOP }];
+            const GUARD_BOT = M(LIE, {
+                pos: [0, -0.68, 0.35], lHip: [-70, 0, 35], rHip: [-70, 0, -35], lKnee: [100, 0, 0], rKnee: [100, 0, 0],
+                lSh: [-60, -15, 0], lEl: [-60, 0, 0], rSh: [-60, 15, 0], rEl: [-60, 0, 0]
+            });
+            const GUARD_PULL = M(GUARD_BOT, { lSh: [-90, -20, 0], lEl: [-40, 0, 0], rSh: [-90, 20, 0], rEl: [-40, 0, 0], head: [20, 0, 0] });
+            const GUARD_B = [{ t: 0, p: GUARD_BOT }, { t: .4, p: GUARD_BOT }, { t: .6, p: GUARD_PULL }, { t: .85, p: GUARD_PULL }, { t: 1, p: GUARD_BOT }];
+            const SIDE_TOP = {
+                pos: [-0.55, -0.57, 1.55], root: [60, 0, -65], spine: [10, 0, 0], head: [-35, 0, 0], lHip: [-10, 0, 25], rHip: [-10, 0, -25], lKnee: [60, 0, 0], rKnee: [60, 0, 0],
+                lSh: [-90, -25, 0], lEl: [-70, 0, 0], rSh: [-90, 25, 0], rEl: [-70, 0, 0]
+            };
+            const SIDE_PRESS = M(SIDE_TOP, { spine: [20, 0, 0], pos: [-0.5, -0.6, 1.55] });
+            const SIDE_A = [{ t: 0, p: SIDE_TOP }, { t: .45, p: SIDE_TOP }, { t: .65, p: SIDE_PRESS }, { t: .85, p: SIDE_PRESS }, { t: 1, p: SIDE_TOP }];
+            const SIDE_BOT = M(LIE, { lSh: [-80, -10, 0], lEl: [-90, 0, 0], rSh: [-80, 20, 0], rEl: [-90, 0, 0], lHip: [-50, 0, 10], lKnee: [90, 0, 0] });
+            const SIDE_B = [{ t: 0, p: SIDE_BOT }, { t: .45, p: SIDE_BOT }, { t: .65, p: M(SIDE_BOT, { spine: [0, 0, 15], head: [0, 0, 10] }) }, { t: .85, p: M(SIDE_BOT, { spine: [0, 0, 15] }) }, { t: 1, p: SIDE_BOT }];
+            const BACK_HOOKS = {
+                pos: [0, -0.68, 1.75], root: [0, 180, 0], spine: [10, 0, 0], head: [10, 0, 0], lHip: [-70, 0, 25], rHip: [-70, 0, -25], lKnee: [80, 0, 0], rKnee: [80, 0, 0],
+                lSh: [-80, -20, 0], lEl: [-60, 0, 0], rSh: [-80, 20, 0], rEl: [-60, 0, 0]
+            };
+            const BACK_SEATBELT = M(BACK_HOOKS, { rSh: [-100, 25, 0], rEl: [0, 0, 70], lSh: [-70, -30, 0], lEl: [-80, 0, 0] });
+            const BACK_CHOKE = M(BACK_HOOKS, { rSh: [-105, 25, 0], rEl: [0, 0, 110], lSh: [-125, -40, 0], lEl: [-115, 0, 0], spine: [-5, 0, 0], head: [15, 0, 0] });
+            const BACK_A = [{ t: 0, p: BACK_HOOKS }, { t: .35, p: BACK_SEATBELT }, { t: .6, p: BACK_CHOKE }, { t: .85, p: BACK_CHOKE }, { t: 1, p: BACK_HOOKS }];
+            const KNEEL = {
+                pos: [0, -0.6, 0], root: [0, 0, 0], spine: [5, 0, 0], head: [5, 0, 0], lHip: [-70, 0, 10], rHip: [-70, 0, -10], lKnee: [140, 0, 0], rKnee: [140, 0, 0],
+                lSh: [-60, -15, 0], lEl: [-90, 0, 0], rSh: [-60, 20, 0], rEl: [-90, 0, 0]
+            };
+            const KNEEL_DEFEND = M(KNEEL, { lSh: [-120, -20, 0], lEl: [-130, 0, 0], rSh: [-120, 20, 0], rEl: [-130, 0, 0], head: [18, 0, 0] });
+            const KNEEL_TAP = M(KNEEL_DEFEND, { rSh: [-40, 60, 0], rEl: [-30, 0, 0] });
+            const BACK_B = [{ t: 0, p: KNEEL }, { t: .35, p: KNEEL_DEFEND }, { t: .6, p: KNEEL_DEFEND }, { t: .85, p: KNEEL_TAP }, { t: 1, p: KNEEL }];
+            const ARMBAR_SPIN = {
+                pos: [-0.2, -0.45, 1.7], root: [0, -50, 0], spine: [30, 0, 0], head: [0, 0, 0], lHip: [-70, 0, 30], lKnee: [100, 0, 0], rHip: [-90, 0, -40], rKnee: [60, 0, 0],
+                lSh: [-110, -20, 0], lEl: [-40, 0, 0], rSh: [-110, 30, 0], rEl: [-40, 0, 0]
+            };
+            const ARMBAR_FIN = {
+                pos: [-0.3, -0.75, 1.9], root: [-90, 0, 90], spine: [15, 0, 0], head: [30, 0, 0], lHip: [-30, 0, 20], lKnee: [60, 0, 0], rHip: [-30, 0, -20], rKnee: [60, 0, 0],
+                lSh: [-90, -20, 0], lEl: [-60, 0, 0], rSh: [-90, 20, 0], rEl: [-60, 0, 0]
+            };
+            const ARMBAR_A = [{ t: 0, p: MOUNT_TOP }, { t: .15, p: MOUNT_TOP }, { t: .4, p: ARMBAR_SPIN }, { t: .65, p: ARMBAR_FIN }, { t: .85, p: ARMBAR_FIN }, { t: 1, p: ARMBAR_FIN }];
+            const ARMBAR_B_EXT = M(LIE, { lSh: [-80, 0, 30], lEl: [0, 0, 0], rSh: [-60, 10, 0], rEl: [-90, 0, 0], head: [-10, 0, 0] });
+            const ARMBAR_B_TAP = M(ARMBAR_B_EXT, { rSh: [-40, 40, 0], rEl: [-40, 0, 0] });
+            const ARMBAR_B = [{ t: 0, p: MOUNT_B_FRAME }, { t: .15, p: MOUNT_B_FRAME }, { t: .4, p: M(LIE, { lSh: [-85, -10, 10], lEl: [-20, 0, 0] }) }, { t: .65, p: ARMBAR_B_EXT }, { t: .85, p: ARMBAR_B_TAP }, { t: 1, p: ARMBAR_B_TAP }];
+            const GROUND_CAM = [-0.1, 0.45, 1.6];
+            /* ---------------- Technique list ---------------- */
+            const mk = (t0, t1, who, pt, label, dy) => ({ t0, t1, who, pt, label, dy });
+            const TECH = [
+                {
+                    key: '1', group: 'strike', name: 'Jab', side: 'Lead hand', dur: 1.1, a: JAB, b: headSnap(.33), trace: 'lGlove', peak: .4, focus: ['lSh', 'lEl'],
+                    phases: [[.32, 'Extend', 'Lead hand shoots straight from the chin while the lead foot slides in. Rear hand stays on the cheek.'],
+                    [.45, 'Impact', 'Arm fully straight, shoulder rolled up to cover the chin, fist turned palm down.'],
+                    [1, 'Retract', 'Hand returns on the same straight line to the guard, elbow stays in.']],
+                    marks: [mk(.28, .5, 'A', 'lGlove', 'Contact: chin'), mk(.28, .5, 'A', 'rGlove', 'Rear hand stays home', .14)],
+                    cues: ['Straight line from guard to target, no wind-up', 'Rotate the fist and shoulder at full extension', 'Hand returns on the same line to guard'],
+                    partner: 'Head snaps back on contact'
+                },
+                {
+                    key: '2', group: 'strike', name: 'Cross', side: 'Rear hand', dur: 1.3, a: CROSS, b: headSnap(.4), trace: 'rGlove', peak: .45, focus: ['rSh', 'rEl', 'rHip', 'spine'],
+                    phases: [[.38, 'Drive', 'Rear heel lifts and the foot pivots in. Hip and shoulder turn toward the target before the hand moves.'],
+                    [.5, 'Impact', 'Arm straight down the centre, chin tucked behind the lead shoulder, weight on the lead leg.'],
+                    [1, 'Recover', 'Hand comes straight back, hips turn back square, weight settles between the feet.']],
+                    marks: [mk(.34, .55, 'A', 'rGlove', 'Contact: chin'), mk(.2, .55, 'A', 'rFoot', 'Heel up, foot pivots in')],
+                    cues: ['Pivot the rear foot, then the hip, then the shoulder', 'Chin stays behind the lead shoulder', 'Rear hand fires straight down the centre line'],
+                    partner: 'Head snaps back on contact'
+                },
+                {
+                    key: '3', group: 'strike', name: 'Lead hook', side: 'Lead hand', dur: 1.3, a: HOOK, b: coverRight(.48), trace: 'lGlove', peak: .55, focus: ['lSh', 'lEl', 'lHip', 'spine'],
+                    phases: [[.28, 'Load', 'Weight shifts onto the lead foot and the lead shoulder drops back slightly to load the punch.'],
+                    [.48, 'Swing', 'Lead foot pivots in. Hip and shoulder turn together, the arm stays bent at 90 degrees.'],
+                    [.6, 'Impact', 'Elbow at fist height, forearm horizontal, fist lands on the side of the jaw.'],
+                    [1, 'Recover', 'Hand returns to the cheek, hips turn back, weight resettles.']],
+                    marks: [mk(.44, .65, 'A', 'lGlove', 'Contact: side of jaw'), mk(.44, .65, 'A', 'lElbow', 'Elbow at fist height', .14), mk(.3, .65, 'A', 'lFoot', 'Lead foot pivots in')],
+                    cues: ['Elbow stays at the height of the fist, arm at 90 degrees', 'Power comes from the lead foot pivot and the hip turn', 'Rear hand glued to the cheek the whole way'],
+                    partner: 'Covers with the far-side forearm'
+                },
+                {
+                    key: '4', group: 'strike', name: 'Rear uppercut', side: 'Rear hand', dur: 1.3, a: UPPERCUT, b: chinUp(.5), trace: 'rGlove', peak: .56, focus: ['rSh', 'rEl', 'rKnee', 'spine'],
+                    phases: [[.3, 'Dip', 'Knees bend and the rear shoulder dips. The hand stays up, only the body drops.'],
+                    [.5, 'Lift', 'Legs and hips drive upward. The arm follows with the palm turned toward you.'],
+                    [.62, 'Impact', 'Fist lands under the chin, elbow still bent, head stays behind the lead shoulder.'],
+                    [1, 'Recover', 'Hand returns to the chin, knees stay soft.']],
+                    marks: [mk(.46, .67, 'A', 'rGlove', 'Contact: under the chin'), mk(.25, .5, 'A', 'rKnee', 'Legs drive up')],
+                    cues: ['Dip the rear shoulder and bend the knees, do not drop the hand', 'Drive up with the legs and hips, arm follows', 'Fist travels up the centre, palm facing you'],
+                    partner: 'Chin lifts, weight goes to the heels'
+                },
+                {
+                    key: '5', group: 'strike', name: 'Lead elbow', side: 'Lead arm', dur: 1.2, a: ELBOW, b: coverRight(.5), trace: 'lElbow', peak: .56, focus: ['lSh', 'lEl', 'spine'],
+                    phases: [[.3, 'Load', 'Step into clinch range. Lead hand rises to the ear with the forearm folded tight.'],
+                    [.5, 'Swing', 'Hip and shoulder turn. The elbow point travels horizontally across.'],
+                    [.62, 'Impact', 'The point of the elbow lands across the jaw or temple, rear hand covering.'],
+                    [1, 'Recover', 'Arm unfolds back to guard, hips turn back.']],
+                    marks: [mk(.46, .67, 'A', 'lElbow', 'Contact: point of the elbow'), mk(.25, .67, 'A', 'lGlove', 'Hand stays by own ear', .14)],
+                    cues: ['Hand stays by your own ear, forearm folded tight', 'Strike with the point of the elbow, horizontal across the face', 'Step in: elbows need clinch range'],
+                    partner: 'Covers with the far-side forearm'
+                },
+                {
+                    key: '6', group: 'strike', name: 'Rear knee', side: 'Rear leg', dur: 1.3, a: KNEE, b: hunch(.55), trace: 'rKnee', peak: .62, focus: ['rHip', 'rKnee', 'lSh', 'rSh', 'lEl', 'rEl'],
+                    phases: [[.3, 'Grip', 'Hands reach for the back of the head and neck, elbows tight together.'],
+                    [.55, 'Drive', 'Hands pull down as the rear knee drives up. Hips push forward, torso leans back.'],
+                    [.68, 'Impact', 'Knee spears into the body with toes pointed down. Standing leg on the ball of the foot.'],
+                    [1, 'Recover', 'Foot returns behind, hands come back to guard.']],
+                    marks: [mk(.5, .72, 'A', 'rKnee', 'Contact: body'), mk(.28, .72, 'A', 'lGlove', 'Pull the head down'), mk(.5, .72, 'A', 'rFoot', 'Toes point down', .12)],
+                    cues: ['Hands pull down and in as the knee drives up', 'Hips push forward, torso leans back slightly', 'Point the toes down to spear with the knee'],
+                    partner: 'Hunches and drops the elbows to cover the body'
+                },
+                {
+                    key: '7', group: 'strike', name: 'Teep', side: 'Lead leg, push kick', dur: 1.3, a: TEEP, b: pushedBack(.5), trace: 'lFoot', peak: .56, focus: ['lHip', 'lKnee'],
+                    phases: [[.3, 'Chamber', 'Lead knee lifts high toward the chest. Standing leg bends slightly, hands stay up.'],
+                    [.5, 'Extend', 'Hip pushes through as the leg straightens. Torso leans back to balance.'],
+                    [.62, 'Impact', 'Ball of the foot lands on the belly or hip and pushes the partner away.'],
+                    [.75, 'Re-chamber', 'Knee pulls back before the foot comes down.'],
+                    [1, 'Set down', 'Foot returns to stance.']],
+                    marks: [mk(.46, .67, 'A', 'lFoot', 'Contact: ball of foot on belly'), mk(.2, .42, 'A', 'lKnee', 'Chamber: knee to chest')],
+                    cues: ['Knee up first, then push the hip through', 'Lean back a little to stay balanced and keep the head away', 'Contact with the ball of the foot, then re-chamber before setting down'],
+                    partner: 'Pushed back a full step'
+                },
+                {
+                    key: '8', group: 'strike', name: 'Rear roundhouse', side: 'Rear leg', dur: 1.6, a: ROUNDHOUSE, b: checkLeft(.5), trace: 'rFoot', peak: .55, focus: ['rHip', 'rKnee', 'lHip', 'spine'],
+                    phases: [[.2, 'Step', 'Lead foot steps out at an angle, heel turning toward the target.'],
+                    [.36, 'Chamber', 'Rear knee swings up and across. Standing foot pivots, torso leans away.'],
+                    [.5, 'Swing', 'Hip turns over the standing leg. The shin whips across.'],
+                    [.6, 'Impact', 'Shin lands on the thigh or ribs. Rear arm swings down for balance, lead hand up.'],
+                    [.74, 'Re-chamber', 'Knee folds back before the leg comes down.'],
+                    [1, 'Reset', 'Foot returns behind into stance.']],
+                    marks: [mk(.46, .65, 'A', 'rKnee', 'Contact: shin on thigh or ribs'), mk(.15, .65, 'A', 'lFoot', 'Standing foot pivots'), mk(.46, .65, 'A', 'rGlove', 'Rear arm swings for balance', .12)],
+                    cues: ['Small step out with the lead foot, heel turns toward the target', 'Hip turns over, torso leans away from the kick', 'Shin lands on the thigh or ribs, rear arm swings for balance'],
+                    partner: 'Checks with the near-side shin'
+                },
+                {
+                    key: '9', group: 'strike', name: 'Outside slip', side: 'Defence vs jab', dur: 1.2, a: SLIP, b: JAB, trace: null, peak: .45, focus: ['spine', 'head'],
+                    phases: [[.38, 'Slip', 'Knees bend and the torso rotates. The head moves outside the jab, eyes on the partner.'],
+                    [.55, 'Hold', 'Hands stay up. The body is loaded to counter with the cross.'],
+                    [1, 'Return', 'Return to guard on the centre line.']],
+                    marks: [mk(.3, .6, 'A', 'head', 'Head moves off the line'), mk(.3, .5, 'B', 'lGlove', 'Jab passes the ear')],
+                    cues: ['Bend at the knees and waist, move the head off the centre line', 'Eyes stay on the partner, do not look down', 'Return to guard ready to counter with the cross'],
+                    partner: 'Throws the jab you slip'
+                },
+                {
+                    key: '0', group: 'strike', name: 'Leg check', side: 'Defence vs roundhouse', dur: 1.6, a: CHECK, b: ROUNDHOUSE, trace: null, peak: .5, focus: ['lHip', 'lKnee'],
+                    phases: [[.38, 'Lift', 'Lead knee lifts and the shin turns outward to meet the kick. Weight stays on the standing leg.'],
+                    [.56, 'Absorb', 'Kick lands on the shin. Hands stay high.'],
+                    [1, 'Set down', 'Foot returns straight back down into stance.']],
+                    marks: [mk(.34, .62, 'A', 'lKnee', 'Shin meets the kick'), mk(.44, .62, 'B', 'rKnee', 'Partner\u2019s shin', .12)],
+                    cues: ['Lift the knee and turn the shin out to meet the kick', 'Keep your weight on the standing leg, hands high', 'Set the foot straight back down into stance'],
+                    partner: 'Throws the roundhouse you check'
+                },
+                {
+                    key: 'Q', group: 'grapple', name: 'Collar tie', side: 'Clinch entry', dur: 1.8, a: TIE_A, b: TIE_B, trace: null, needsPartner: true, peak: .7, focus: ['lSh', 'rSh', 'lEl', 'rEl'],
+                    phases: [[.3, 'Step in', 'Close the distance behind a strike. Hands come forward, palms in.'],
+                    [.5, 'Grip', 'Both hands cup the back of the head and neck. Elbows pinch together so the head cannot slip out.'],
+                    [.7, 'Snap down', 'Weight drops and the elbows pull down and in. The partner\u2019s posture breaks.'],
+                    [.85, 'Control', 'Keep the head below yours. Knees and elbows are available from here.'],
+                    [1, 'Reset', '']],
+                    marks: [mk(.45, .9, 'A', 'lGlove', 'Grip: back of the head'), mk(.45, .9, 'A', 'rGlove', 'Grip: back of the neck', .14), mk(.45, .9, 'A', 'lElbow', 'Elbows pinch in', .12), mk(.65, .9, 'B', 'head', 'Posture broken', .22)],
+                    cues: ['Step in behind the jab, hands go to the back of the head and neck', 'Elbows squeeze together so the head cannot slide out', 'Snap the head down with the body, not the arms, to set up knees'],
+                    partner: 'Posture breaks, head pulled down'
+                },
+                {
+                    key: 'W', group: 'grapple', name: 'Double leg', side: 'Takedown', dur: 1.8, a: DOUBLE_A, b: DOUBLE_B, trace: null, needsPartner: true, peak: .6, focus: ['lSh', 'rSh', 'lEl', 'rEl', 'lHip', 'lKnee', 'head'],
+                    phases: [[.25, 'Level change', 'Knees bend to drop the hips. Back straight, head up, hands in front.'],
+                    [.45, 'Penetrate', 'Lead knee lands between the partner\u2019s feet. Head goes outside their hip, arms wrap behind the knees.'],
+                    [.65, 'Drive', 'Legs drive forward and up. Hands pull the knees in toward you.'],
+                    [.8, 'Lift', 'Partner\u2019s weight is tipped back onto the heels.'],
+                    [1, 'Reset', '']],
+                    marks: [mk(.4, .85, 'A', 'lGlove', 'Grip: behind the knee'), mk(.4, .85, 'A', 'rGlove', 'Grip: behind the knee', .14), mk(.4, .85, 'A', 'head', 'Head outside the hip'), mk(.4, .62, 'A', 'lKnee', 'Lead knee between the feet')],
+                    cues: ['Change level with the knees, back stays straight, head up', 'Lead knee lands between the feet, head to the outside of the hip', 'Arms wrap behind the knees, drive forward and up with the legs'],
+                    partner: 'Lifted, weight tipped onto the heels'
+                },
+                {
+                    key: 'E', group: 'grapple', name: 'Single leg', side: 'Takedown', dur: 1.8, a: SINGLE_A, b: SINGLE_B, trace: null, needsPartner: true, peak: .65, focus: ['lSh', 'rSh', 'lEl', 'rEl', 'head'],
+                    phases: [[.25, 'Level change', 'Knees bend to drop the hips. Back straight, head up.'],
+                    [.45, 'Catch', 'Both arms wrap the lead leg above the knee. Head tight to the inside of the chest.'],
+                    [.65, 'Lift', 'Leg lifted to your hip. The partner is on one foot.'],
+                    [.8, 'Run the pipe', 'Turn and drive to take the partner down.'],
+                    [1, 'Reset', '']],
+                    marks: [mk(.4, .85, 'A', 'lGlove', 'Grip: above the knee'), mk(.4, .85, 'A', 'rGlove', 'Hands locked', .14), mk(.4, .85, 'A', 'head', 'Head tight to the chest'), mk(.6, .85, 'B', 'lFoot', 'Leg lifted to hip', .12)],
+                    cues: ['Level change, then catch the lead leg with both arms above the knee', 'Head stays tight to the inside of the chest', 'Lift the leg to your hip, then turn and drive to finish'],
+                    partner: 'Left hopping on one leg'
+                },
+                {
+                    key: 'R', group: 'grapple', name: 'Hip toss', side: 'Throw, o-goshi', dur: 2.0, a: TOSS_A, b: TOSS_B, trace: null, needsPartner: true, peak: .6, focus: ['lSh', 'rSh', 'lEl', 'rEl', 'root', 'lHip', 'rHip'],
+                    phases: [[.2, 'Grip', 'Collar and sleeve grip, feet close to the partner.'],
+                    [.4, 'Turn in', 'Step across and turn so your back is to the partner. Knees bent, hips below their hips, arm around the waist.'],
+                    [.6, 'Load and throw', 'Legs straighten and the torso bends forward. The partner rolls over your hip.'],
+                    [.78, 'Finish', 'Partner lands on the back at your feet. Keep the sleeve grip.'],
+                    [1, 'Hold', '']],
+                    marks: [mk(.35, .65, 'A', 'hips', 'Hips under the partner'), mk(.35, .65, 'A', 'rGlove', 'Arm around the waist', .14), mk(.35, .8, 'A', 'lGlove', 'Sleeve pull'), mk(.5, .66, 'B', 'hips', 'Loaded on the hip', .18)],
+                    cues: ['Step across and turn so your back is to the partner, knees bent, hips lower than theirs', 'Arm around the waist, pull the sleeve arm across your chest', 'Straighten the legs and bend forward: the partner rolls over your hip'],
+                    partner: 'Loaded on the hip, lands on the back at your feet'
+                },
+                {
+                    key: 'T', group: 'grapple', name: 'Sprawl', side: 'Defence vs double leg', dur: 1.8, a: SPRAWL_A, b: SHOT_STUFFED, trace: null, needsPartner: true, peak: .55, focus: ['lHip', 'rHip', 'lKnee', 'rKnee', 'spine'],
+                    phases: [[.28, 'Read the shot', 'Hands drop to meet the shoulders as the partner changes level.'],
+                    [.5, 'Sprawl', 'Legs shoot back and hips drop. Chest lands on the upper back, head up.'],
+                    [.75, 'Pressure', 'Weight stays heavy. Hands on the shoulders or an overhook, ready to circle behind.'],
+                    [1, 'Reset', '']],
+                    marks: [mk(.45, .8, 'A', 'chest', 'Chest heavy on the back'), mk(.45, .8, 'A', 'hips', 'Hips down and back', .14), mk(.45, .8, 'B', 'head', 'Shot stuffed', .2)],
+                    cues: ['Throw the legs back and hips down the moment the level changes', 'Chest lands heavy on the partner\u2019s upper back, head up', 'Hands on the shoulders or an overhook, then circle behind'],
+                    partner: 'Shot stuffed, flattened under your hips'
+                },
+                {
+                    key: 'Y', group: 'grapple', name: 'Mount', side: 'Top position', dur: 2.0, a: MOUNT_A, b: MOUNT_B, trace: null, needsPartner: true, cam: GROUND_CAM, peak: .45, focus: ['lHip', 'rHip', 'lKnee', 'rKnee', 'root'],
+                    phases: [[.45, 'Base', 'Knees squeeze the ribs. Hips sit heavy on the belly, hands post wide.'],
+                    [.65, 'Posture up', 'Sit up to strike only once the partner stops bridging.'],
+                    [.85, 'Hold', 'Stay heavy. If the partner bridges, post a hand and drop the chest.'],
+                    [1, 'Settle', '']],
+                    marks: [mk(0, 1, 'A', 'lKnee', 'Knees tight to the ribs'), mk(0, 1, 'A', 'rKnee', 'Knees tight to the ribs', .14), mk(0, 1, 'A', 'hips', 'Hips heavy on the belly', .2), mk(.6, .9, 'B', 'hips', 'Partner bridges', -.1)],
+                    cues: ['Knees tight against the ribs, hips heavy over the belly', 'Hands posted wide when the partner bridges, chest low', 'Posture up only to strike, then sink back down'],
+                    partner: 'Frames and bridges to unbalance you'
+                },
+                {
+                    key: 'U', group: 'grapple', name: 'Closed guard', side: 'Inside the guard', dur: 2.0, a: GUARD_A, b: GUARD_B, trace: null, needsPartner: true, cam: GROUND_CAM, peak: .4, focus: ['spine', 'head', 'lSh', 'rSh'],
+                    phases: [[.4, 'Posture', 'Knees wide, hips under you, back straight. Hands on the hips or chest.'],
+                    [.6, 'Grip fight', 'The partner pulls the head. Posture back up and strip the grips.'],
+                    [.85, 'Hold', 'Stay upright. Break the ankles open before trying to pass.'],
+                    [1, 'Settle', '']],
+                    marks: [mk(0, 1, 'B', 'lFoot', 'Ankles locked behind your back'), mk(0, 1, 'A', 'lGlove', 'Hands on hips or chest', .14), mk(0, 1, 'A', 'head', 'Head up, back straight', .22), mk(.55, .9, 'B', 'rGlove', 'Partner pulls the head', .1)],
+                    cues: ['Knees wide, hips under you, back straight: never bend forward into the guard', 'Hands on the hips or chest to stop the partner sitting up', 'Break the ankles open before trying to pass'],
+                    partner: 'Pulls your head down to break posture'
+                },
+                {
+                    key: 'I', group: 'grapple', name: 'Side control', side: 'Top position', dur: 2.0, a: SIDE_A, b: SIDE_B, trace: null, needsPartner: true, cam: GROUND_CAM, peak: .45, focus: ['lSh', 'lEl', 'rSh', 'rEl', 'spine'],
+                    phases: [[.45, 'Pin', 'Chest to chest, hips low, legs sprawled back. Crossface arm under the head.'],
+                    [.65, 'Shoulder pressure', 'Drive the shoulder into the jaw when the partner frames.'],
+                    [.85, 'Hold', 'Stay chest to chest. Follow the hips if the partner turns.'],
+                    [1, 'Settle', '']],
+                    marks: [mk(0, 1, 'A', 'chest', 'Chest to chest'), mk(0, 1, 'A', 'lGlove', 'Crossface: arm under the head', .14), mk(0, 1, 'A', 'rGlove', 'Control the near hip', .14), mk(.6, .9, 'A', 'lShoulder', 'Shoulder into the jaw', .22)],
+                    cues: ['Chest to chest, hips low, legs sprawled back for base', 'Crossface arm under the head, other arm controls the near hip', 'Drive the shoulder into the jaw when the partner frames'],
+                    partner: 'Frames on your neck and hip to make space'
+                },
+                {
+                    key: 'O', group: 'grapple', name: 'Rear naked choke', side: 'Back control', dur: 2.0, a: BACK_A, b: BACK_B, trace: null, needsPartner: true, cam: [0, 0.7, 1.5], peak: .85, focus: ['lHip', 'rHip', 'lKnee', 'rKnee', 'rSh', 'rEl', 'lSh', 'lEl'],
+                    phases: [[.35, 'Hooks in', 'Both feet hook inside the thighs. Chest glued to the back.'],
+                    [.6, 'Seatbelt', 'One arm over the shoulder, one under the arm, hands joined on the chest.'],
+                    [.85, 'Choke', 'Choking arm slides under the chin, hand to your own bicep. Other hand behind the head. Squeeze the elbows together.'],
+                    [1, 'Release', '']],
+                    marks: [mk(0, 1, 'A', 'lFoot', 'Hook inside the thigh'), mk(0, 1, 'A', 'rFoot', 'Hook inside the thigh', .14), mk(.55, .95, 'A', 'rGlove', 'Hand on own bicep', .14), mk(.55, .95, 'A', 'lGlove', 'Hand behind the head'), mk(.55, .95, 'B', 'head', 'Forearm under the chin', -.08)],
+                    cues: ['Both hooks in, chest glued to the partner\u2019s back', 'Choking arm slides under the chin, hand to your own bicep', 'Other hand behind the head, squeeze with the elbows and expand the chest'],
+                    partner: 'Defends the hands, then taps'
+                },
+                {
+                    key: 'P', group: 'grapple', name: 'Armbar', side: 'From mount', dur: 2.2, a: ARMBAR_A, b: ARMBAR_B, trace: null, needsPartner: true, cam: GROUND_CAM, peak: .8, focus: ['lHip', 'rHip', 'lKnee', 'rKnee', 'lSh', 'rSh', 'lEl', 'rEl'],
+                    phases: [[.15, 'Mount', 'Start heavy in mount with one arm isolated.'],
+                    [.4, 'Spin', 'Hug the arm to your chest, post the far hand, swing a leg across the face and spin around the shoulder.'],
+                    [.65, 'Fall back', 'Sit close to the shoulder and fall back. Knees pinch the arm.'],
+                    [.85, 'Extend', 'Hips lift, thumb points to the ceiling. The elbow bends the wrong way.'],
+                    [1, 'Hold', '']],
+                    marks: [mk(.6, 1, 'A', 'hips', 'Hips tight to the shoulder'), mk(.6, 1, 'A', 'lKnee', 'Knees pinch the arm', .14), mk(.75, 1, 'B', 'lElbow', 'Elbow hyperextends', .12), mk(.75, 1, 'A', 'lGlove', 'Wrist to chest, thumb up', .22)],
+                    cues: ['Isolate one arm, hug it to your chest, post the far hand', 'Spin around the shoulder, leg across the face, knees pinch tight', 'Fall back, hips up, thumb pointing to the ceiling'],
+                    partner: 'Arm trapped and extended, taps'
+                }
+            ];
+            const byKey = Object.fromEntries(TECH.map(t => [t.key, t]));
+            /* ---------------- Combinations ----------------
+            Built by sampling each technique's keyframes into a slice of the combo timeline. Each step is trimmed just before
+            its final reset phase so the next technique flows out of the previous one.
+            */
+            const ease = (x) => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+            const JOINTS = ['root', 'spine', 'head', 'lSh', 'lEl', 'lWrist', 'rSh', 'rEl', 'rWrist', 'lHip', 'lKnee', 'lAnkle', 'rHip', 'rKnee', 'rAnkle'];
+            function fullPose(partial) {
+                const p = {};
+                for (const k of JOINTS) p[k] = (partial && partial[k]) || STANCE[k];
+                p.pos = (partial && partial.pos) || STANCE.pos;
+                return p;
+            }
+            function buildCombo(def) {
+                const steps = def.steps.map(k => byKey[k]);
+                const trims = steps.map(tk => tk.phases.length > 1 ? tk.phases[tk.phases.length - 2][0] : 1);
+                const shares = steps.map((tk, i) => tk.dur * trims[i]);
+                const total = shares.reduce((a, b) => a + b, 0);
+                const GAP = 0.08;
+                const a = [], b = [], phases = [], marks = [], ranges = [];
+                let t0 = 0;
+                steps.forEach((tk, i) => {
+                    const span = shares[i] / total, trim = trims[i], inner = span * (1 - GAP);
+                    const map = (t) => t0 + (t / trim) * inner;
+                    const sample = (frames, out) => {
+                        const ts = [...new Set(frames.map(f => f.t).filter(t => t <= trim + 1e-6).concat([trim]))].sort((x, y) => x - y);
+                        ts.forEach(t => out.push({ t: map(t), p: fullPose(poseAt(frames, t)) }));
+                    };
+                    sample(tk.a, a); sample(tk.b, b);
+                    tk.phases.forEach(([u, n, e]) => { if (u <= trim + 1e-6) phases.push([map(u), `${tk.name}: ${n}`, e]); });
+                    (tk.marks || []).forEach(m => marks.push(M(m, { t0: map(Math.min(m.t0, trim)), t1: map(Math.min(m.t1, trim)) })));
+                    ranges.push({ tk, t0, t1: t0 + span });
+                    t0 += span;
+                });
+                const lastA = steps[steps.length - 1].a, lastB = steps[steps.length - 1].b;
+                a.push({ t: 1, p: fullPose(lastA[lastA.length - 1].p) }); b.push({ t: 1, p: fullPose(lastB[lastB.length - 1].p) });
+                phases.push([1, 'Reset', '']);
+                return {
+                    key: def.key, group: 'combo', name: def.name, side: def.side, dur: total + 0.3 * steps.length, a, b, phases, marks, ranges,
+                    needsPartner: steps.some(s => s.needsPartner), peak: ranges[0].t0 + steps[0].peak * (ranges[0].t1 - ranges[0].t0) * (1 - GAP) / trims[0],
+                    cues: def.cues, partner: steps.map(s => s.partner).join('. ') + '.'
+                };
+            }
+            const COMBO_DEFS = [
+                { key: 'Z', name: 'Jab, cross', side: 'The one-two', steps: ['1', '2'], cues: ['The jab measures distance and blinds, the cross follows before the jab hand is home', 'Hips turn back as the jab retracts so the cross has a full turn to load', 'Both hands return to the chin'] },
+                { key: 'X', name: 'Jab, cross, hook', side: 'The one-two-three', steps: ['1', '2', '3'], cues: ['The cross turns the hips one way, the hook turns them straight back', 'Weight shifts rear to lead on the cross, then the lead foot pivots for the hook', 'Keep the head moving off line between punches'] },
+                { key: 'N', name: 'Teep, cross', side: 'Kick to punch', steps: ['7', '2'], cues: ['The teep pushes the partner into range for the cross', 'Set the kicking foot down forward so the cross steps through', 'Hands stay up during the kick'] },
+                { key: 'H', name: 'Collar tie, knee', side: 'Clinch to strike', steps: ['Q', '6'], cues: ['Break posture first, then knee', 'Pull the head toward the knee, do not swing the knee at the head', 'Elbows stay tight the whole time'] },
+                { key: 'J', name: 'Double leg, mount', side: 'Takedown to top', steps: ['W', 'Y'], cues: ['Finish the drive before you try to pass; a half-finished takedown gets reversed', 'Land in side control or step straight over the hips to mount', 'Settle heavy before posturing up'] },
+                { key: 'K', name: 'Cross, hook, knee', side: 'Long to short range', steps: ['2', '3', '6'], cues: ['Each strike closes distance: punch range, hook range, clinch range', 'The hook turns the hips to load the rear knee', 'Hands switch from punching to pulling the head'] }
+            ];
+            COMBO_DEFS.forEach(def => TECH.push(buildCombo(def)));
+            /* ---------------- Scene ---------------- */
+            const stage = document.getElementById('stage');
+            const renderer = new T.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = T.PCFSoftShadowMap;
+            renderer.outputEncoding = T.sRGBEncoding;
+            stage.appendChild(renderer.domElement);
+            const scene = new T.Scene();
+            scene.background = new T.Color(0x232930);
+            scene.fog = new T.Fog(0x232930, 9, 20);
+            const camera = new T.PerspectiveCamera(38, 1, 0.05, 100);
+            const fixedCams = [0, 1, 2].map(() => new T.PerspectiveCamera(38, 1, 0.1, 100));
+            const FIXED_VIEWS = [{ theta: Math.PI / 2, phi: 1.3 }, { theta: 0.001, phi: 0.06 }, { theta: Math.PI, phi: 1.25 }];
+            scene.add(new T.HemisphereLight(0xcfd6e0, 0x2a2f36, 0.75));
+            const sun = new T.DirectionalLight(0xffffff, 0.95);
+            sun.position.set(3, 6, 2);
+            sun.castShadow = true;
+            sun.shadow.mapSize.set(2048, 2048);
+            sun.shadow.camera.near = 1; sun.shadow.camera.far = 20;
+            sun.shadow.camera.left = sun.shadow.camera.bottom = -5;
+            sun.shadow.camera.right = sun.shadow.camera.top = 5;
+            sun.shadow.bias = -0.0015;
+            scene.add(sun);
+            const fill = new T.DirectionalLight(0x9fb4d0, 0.3); fill.position.set(-4, 3, -3); scene.add(fill);
+            const mat = new T.Mesh(new T.CylinderGeometry(4.6, 4.6, 0.08, 8), new T.MeshStandardMaterial({ color: 0x39434F, roughness: 0.95 }));
+            mat.position.y = -0.04; mat.receiveShadow = true; mat.rotation.y = Math.PI / 8; scene.add(mat);
+            const centre = new T.Mesh(new T.CircleGeometry(1.4, 48), new T.MeshStandardMaterial({ color: 0x44505D, roughness: 0.95 }));
+            centre.rotation.x = -Math.PI / 2; centre.position.y = 0.002; centre.receiveShadow = true; scene.add(centre);
+            const floor = new T.Mesh(new T.PlaneGeometry(60, 60), new T.MeshStandardMaterial({ color: 0x1E242B, roughness: 1 }));
+            floor.rotation.x = -Math.PI / 2; floor.position.y = -0.08; floor.receiveShadow = true; scene.add(floor);
+            (function cage() {
+                const postMat = new T.MeshStandardMaterial({ color: 0x1A1F26, roughness: 0.5, metalness: 0.4 });
+                const padMat = new T.MeshStandardMaterial({ color: 0x2B333D, roughness: 0.9 });
+                const c = document.createElement('canvas'); c.width = c.height = 128;
+                const g = c.getContext('2d'); g.strokeStyle = 'rgba(200,205,212,0.55)'; g.lineWidth = 2;
+                for (let i = -128; i < 256; i += 32) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i + 128, 128); g.stroke(); g.beginPath(); g.moveTo(i + 128, 0); g.lineTo(i, 128); g.stroke(); }
+                const tex = new T.CanvasTexture(c); tex.wrapS = tex.wrapT = T.RepeatWrapping;
+                const fenceMat = new T.MeshBasicMaterial({ map: tex, transparent: true, opacity: 0.5, side: T.DoubleSide, depthWrite: false });
+                const r = 4.6, h = 1.8;
+                for (let i = 0; i < 8; i++) {
+                    const a0 = i * Math.PI / 4 + Math.PI / 8, a1 = a0 + Math.PI / 4;
+                    const x0 = Math.cos(a0) * r, z0 = Math.sin(a0) * r, x1 = Math.cos(a1) * r, z1 = Math.sin(a1) * r;
+                    const post = new T.Mesh(new T.CylinderGeometry(0.05, 0.05, h + 0.1, 10), postMat);
+                    post.position.set(x0, h / 2, z0); scene.add(post);
+                    const len = Math.hypot(x1 - x0, z1 - z0);
+                    const t2 = tex.clone(); t2.needsUpdate = true; t2.repeat.set(len * 2.2, h * 2.2);
+                    const panel = new T.Mesh(new T.PlaneGeometry(len, h), fenceMat.clone()); panel.material.map = t2;
+                    panel.position.set((x0 + x1) / 2, h / 2 + 0.12, (z0 + z1) / 2); panel.lookAt(0, h / 2 + 0.12, 0); scene.add(panel);
+                    const pad = new T.Mesh(new T.BoxGeometry(len, 0.16, 0.1), padMat);
+                    pad.position.set((x0 + x1) / 2, h + 0.1, (z0 + z1) / 2); pad.lookAt(0, h + 0.1, 0); scene.add(pad);
+                    const base = new T.Mesh(new T.BoxGeometry(len, 0.18, 0.1), padMat);
+                    base.position.set((x0 + x1) / 2, 0.05, (z0 + z1) / 2); base.lookAt(0, 0.05, 0); scene.add(base);
+                }
+            })();
+            /* ---------------- Fighter rig ---------------- */
+            function makeFighter({ skin, accent, ghost }) {
+                const opts = ghost ? { transparent: true, opacity: 0.22, depthWrite: false } : {};
+                const skinMat = new T.MeshStandardMaterial(M({ color: skin, roughness: 0.85 }, opts));
+                const accMat = new T.MeshStandardMaterial(M({ color: accent, roughness: 0.55 }, opts));
+                const f = { joints: {}, points: {}, jointMeshes: {} };
+                const mesh = (geo, m) => { const o = new T.Mesh(geo, m); if (!ghost) { o.castShadow = true; o.receiveShadow = true; } return o; };
+                const limb = (parent, len, r0, r1, m) => {
+                    const seg = mesh(new T.CylinderGeometry(r1, r0, len, 14), m); seg.position.y = -len / 2; parent.add(seg);
+                    const cap = mesh(new T.SphereGeometry(r1 * 1.02, 14, 10), m); parent.add(cap);
+                };
+                const joint = (parent, name, x, y, z, order) => {
+                    const g = new T.Group(); g.position.set(x, y, z); if (order) g.rotation.order = order; parent.add(g); f.joints[name] = g; return g;
+                };
+                const marker = (parent, name, y, z) => { const g = new T.Group(); g.position.set(0, y, z || 0); parent.add(g); f.points[name] = g; };
+                const holder = new T.Group();
+                const root = new T.Group(); root.position.y = 0.97; holder.add(root); f.holder = holder; f.root = root;
+                const pelvis = mesh(new T.CylinderGeometry(0.17, 0.19, 0.22, 18), accMat); pelvis.position.y = -0.04; root.add(pelvis);
+                marker(root, 'hips', 0);
+                const spine = joint(root, 'spine', 0, 0.08, 0);
+                const chest = mesh(new T.CylinderGeometry(0.21, 0.165, 0.46, 18), skinMat); chest.position.y = 0.25; spine.add(chest);
+                const traps = mesh(new T.SphereGeometry(0.2, 18, 12), skinMat); traps.scale.set(1.25, 0.5, 0.8); traps.position.y = 0.46; spine.add(traps);
+                const neck = mesh(new T.CylinderGeometry(0.06, 0.07, 0.12, 12), skinMat); neck.position.y = 0.53; spine.add(neck);
+                marker(spine, 'chest', 0.3); marker(spine, 'neck', 0.52);
+                const head = joint(spine, 'head', 0, 0.56, 0);
+                const skull = mesh(new T.SphereGeometry(0.125, 20, 16), skinMat); skull.scale.set(0.92, 1.08, 1); skull.position.y = 0.12; head.add(skull);
+                const nose = mesh(new T.ConeGeometry(0.02, 0.05, 8), skinMat); nose.rotation.x = Math.PI / 2; nose.position.set(0, 0.1, 0.125); head.add(nose);
+                marker(head, 'head', 0.12); marker(head, 'eyes', 0.14, 0.08);
+                const arm = (side, sign) => {
+                    const sh = joint(spine, side + 'Sh', sign * 0.245, 0.43, 0, 'YXZ');
+                    limb(sh, 0.3, 0.07, 0.06, skinMat);
+                    marker(sh, side + 'Shoulder', 0);
+                    const el = joint(sh, side + 'El', 0, -0.3, 0, 'XYZ');
+                    limb(el, 0.27, 0.06, 0.05, skinMat);
+                    marker(el, side + 'Elbow', 0);
+                    const wr = joint(el, side + 'Wrist', 0, -0.27, 0, 'XYZ');
+                    const fist = mesh(new T.BoxGeometry(0.13, 0.1, 0.16), accMat); fist.position.set(0, -0.05, 0.02); wr.add(fist);
+                    const thumb = mesh(new T.SphereGeometry(0.035, 10, 8), accMat); thumb.position.set(sign - 0.06, -0.03, 0.06); wr.add(thumb);
+                    marker(wr, side + 'Glove', -0.06, 0.02);
+                };
+                arm('l', 1); arm('r', -1);
+                const leg = (side, sign) => {
+                    const hip = joint(root, side + 'Hip', sign * 0.12, -0.08, 0, 'YXZ');
+                    marker(hip, side + 'HipJoint', 0);
+                    const short = mesh(new T.CylinderGeometry(0.105, 0.09, 0.2, 14), accMat); short.position.y = -0.09; hip.add(short);
+                    limb(hip, 0.44, 0.1, 0.075, skinMat);
+                    const knee = joint(hip, side + 'Knee', 0, -0.44, 0, 'XYZ');
+                    limb(knee, 0.44, 0.075, 0.055, skinMat);
+                    marker(knee, side + 'Knee', 0);
+                    const an = joint(knee, side + 'Ankle', 0, -0.42, 0, 'XYZ');
+                    const foot = mesh(new T.BoxGeometry(0.1, 0.06, 0.24), skinMat); foot.position.set(0, -0.03, 0.05); an.add(foot);
+                    marker(an, side + 'Foot', -0.03, 0.05);
+                };
+                leg('l', 1); leg('r', -1);
+                if (!ghost) {
+                    for (const j of JOINTS) {
+                        const g = j === 'root' ? root : f.joints[j];
+                        f.jointMeshes[j] = g.children.filter(c => c.isMesh);
+                        f.jointMeshes[j].forEach(c => { c.material = c.material.clone(); });
+                    }
+                }
+                return f;
+            }
+            const FOCUS_EXTEND = { lEl: 'lWrist', rEl: 'rWrist', lKnee: 'lAnkle', rKnee: 'rAnkle' };
+            function setFocus(f, names) {
+                const set = new Set(names || []);
+                for (const n of [...set]) if (FOCUS_EXTEND[n]) set.add(FOCUS_EXTEND[n]);
+                for (const j of JOINTS) for (const m of f.jointMeshes[j]) {
+                    const on = set.has(j);
+                    m.material.emissive.setHex(on ? 0xA63A26 : 0x000000);
+                    m.material.emissiveIntensity = on ? 0.9 : 1;
+                }
+            }
+            const A = makeFighter({ skin: 0xB9A898, accent: 0xD9442F });
+            const B = makeFighter({ skin: 0x9CA5B2, accent: 0x3F7FD6 });
+            B.holder.rotation.y = Math.PI; B.holder.position.z = 1.45;
+            scene.add(A.holder, B.holder);
+            const S = makeFighter({ skin: 0x000000, accent: 0x000000 }); S.holder.visible = false; scene.add(S.holder);
+            const GHOST_N = 8;
+            const ghosts = Array.from({ length: GHOST_N }, () => { const g = makeFighter({ skin: 0xE8A090, accent: 0xD9442F, ghost: true }); g.holder.visible = false; scene.add(g.holder); g.label = null; return g; });
+            /* ---------------- Pose playback ---------------- */
+            function poseAt(frames, t) {
+                let i = 0;
+                while (i < frames.length - 1 && frames[i + 1].t <= t) i++;
+                const f0 = frames[i], f1 = frames[Math.min(i + 1, frames.length - 1)];
+                const p0 = fullPose(f0.p), p1 = fullPose(f1.p);
+                const span = f1.t - f0.t;
+                const k = span > 0 ? ease(Math.min(1, Math.max(0, (t - f0.t) / span))) : 1;
+                const out = {};
+                for (const j of [...JOINTS, 'pos']) out[j] = [0, 1, 2].map(n => p0[j][n] + (p1[j][n] - p0[j][n]) * k);
+                return out;
+            }
+            const SWAP = { lSh: 'rSh', rSh: 'lSh', lEl: 'rEl', rEl: 'lEl', lWrist: 'rWrist', rWrist: 'lWrist', lHip: 'rHip', rHip: 'lHip', lKnee: 'rKnee', rKnee: 'lKnee', lAnkle: 'rAnkle', rAnkle: 'lAnkle' };
+            function mirrorPose(p) {
+                const o = {};
+                for (const j of JOINTS) { const s = p[SWAP[j] || j]; o[j] = [s[0], -s[1], -s[2]]; }
+                o.pos = [-p.pos[0], p.pos[1], p.pos[2]];
+                return o;
+            }
+            const poseOf = (frames, t) => state.southpaw ? mirrorPose(poseAt(frames, t)) : poseAt(frames, t);
+            const sideName = (n) => !state.southpaw ? n : (n[0] === 'l' && n[1] >= 'A' && n[1] <= 'Z') ? 'r' + n.slice(1) : (n[0] === 'r' && n[1] >= 'A' && n[1] <= 'Z') ? 'l' + n.slice(1) : n;
+            function apply(f, p) {
+                for (const j of JOINTS) {
+                    const g = j === 'root' ? f.root : f.joints[j];
+                    g.rotation.set(p[j][0] * D, p[j][1] * D, p[j][2] * D);
+                }
+                f.root.position.set(p.pos[0], 0.97 + p.pos[1], p.pos[2]);
+            }
+            /* ---------------- Labels, marks, guides ---------------- */
+            function roundRect(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+            const labelTexCache = new Map();
+            let sharedRingTex = null;
+            function getRingTexture() {
+                if (!sharedRingTex) {
+                    const c = document.createElement('canvas'); c.width = c.height = 128;
+                    const g = c.getContext('2d'); g.strokeStyle = '#FFC53D'; g.lineWidth = 10; g.beginPath(); g.arc(64, 64, 50, 0, Math.PI * 2); g.stroke();
+                    g.fillStyle = '#FFC53D'; g.beginPath(); g.arc(64, 64, 14, 0, Math.PI * 2); g.fill();
+                    sharedRingTex = new T.CanvasTexture(c);
+                }
+                return sharedRingTex;
+            }
+            function getLabelTexture(text, color, small) {
+                const key = `${text}|${color}|${small}`;
+                let tex = labelTexCache.get(key);
+                if (!tex) {
+                    const c = document.createElement('canvas'); c.width = 1024; c.height = 128;
+                    const g = c.getContext('2d');
+                    g.font = `600 ${small ? 40 : 46}px Barlow, system-ui, sans-serif`;
+                    const w = Math.min(1000, g.measureText(text).width + 56);
+                    g.fillStyle = 'rgba(18,22,28,0.88)'; roundRect(g, (1024 - w) / 2, 20, w, 88, 18); g.fill();
+                    g.fillStyle = color; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, 512, 64);
+                    tex = new T.CanvasTexture(c);
+                    labelTexCache.set(key, tex);
+                }
+                return tex;
+            }
+            function makeLabel(text, color, small) {
+                const s = new T.Sprite(new T.SpriteMaterial({ map: getLabelTexture(text, color, small), depthTest: false, transparent: true }));
+                s.scale.set(small ? 1.3 : 1.6, small ? 0.16 : 0.2, 1); s.renderOrder = 20;
+                return s;
+            }
+            function makeRing() {
+                const s = new T.Sprite(new T.SpriteMaterial({ map: getRingTexture(), depthTest: false, transparent: true }));
+                s.scale.set(0.22, 0.22, 1); s.renderOrder = 19;
+                return s;
+            }
+            const markGroup = new T.Group(); scene.add(markGroup);
+            const guideGroup = new T.Group(); scene.add(guideGroup);
+            let marks = [];
+            const tmpV = new T.Vector3(), tmpD = new T.Vector3(), v1 = new T.Vector3(), v2 = new T.Vector3(), v3 = new T.Vector3();
+            const roV1 = new T.Vector3(), roV2 = new T.Vector3(), roV3 = new T.Vector3();
+            const MOCAP_BONES = {
+                lGlove: 'LeftHand', rGlove: 'RightHand', lElbow: 'LeftForeArm', rElbow: 'RightForeArm', lFoot: 'LeftFoot', rFoot: 'RightFoot',
+                lKnee: 'LeftLeg', rKnee: 'RightLeg', head: 'Head', eyes: 'Head', neck: 'Neck', chest: 'Spine1', hips: 'Hips', lShoulder: 'LeftArm', rShoulder: 'RightArm',
+                lHipJoint: 'LeftUpLeg', rHipJoint: 'RightUpLeg'
+            };
+            function isSharedTexture(tex) {
+                return tex === sharedRingTex || Array.from(labelTexCache.values()).includes(tex);
+            }
+            function disposeGroup(group) {
+                while (group.children.length) {
+                    const o = group.children.pop();
+                    o.traverse(c => {
+                        if (c.geometry) c.geometry.dispose();
+                        if (c.material) {
+                            if (c.material.map && !isSharedTexture(c.material.map)) c.material.map.dispose();
+                            c.material.dispose();
+                        }
+                    });
+                }
+            }
+            function buildMarks() {
+                disposeGroup(markGroup);
+                marks = (TECH[state.tech].marks || []).map(m => {
+                    const ring = makeRing(), label = makeLabel(m.label, '#FFC53D');
+                    markGroup.add(ring, label);
+                    return { m, ring, label };
+                });
+            }
+            function buildGhosts() {
+                const tk = TECH[state.tech];
+                const mc = mocapClipFor(tk);
+                ghosts.forEach(g => { g.holder.visible = false; g.label = null; });
+                if (!state.ghosts || mc) return;
+                const ph = currentPhases();
+                for (let i = 0; i < Math.min(GHOST_N, ph.length - 1); i++) {
+                    const g = ghosts[i];
+                    const t = ph[i][0] - 0.0005;
+                    apply(g, poseOf(tk.a, t));
+                    g.holder.visible = true;
+                    g.holder.updateMatrixWorld(true);
+                    g.label = makeLabel(`${i + 1}. ${ph[i][1]}`, '#F2B5AB', true);
+                    g.points.head.getWorldPosition(tmpV);
+                    g.label.position.copy(tmpV).add(new T.Vector3(0, 0.42, 0));
+                    guideGroup.add(g.label);
+                }
+            }
+            function currentFocus() {
+                const tk = TECH[state.tech];
+                const f = tk.ranges ? (tk.ranges.find(r => state.t < r.t1) || tk.ranges[tk.ranges.length - 1]).tk.focus : tk.focus;
+                return (f || []).map(sideName);
+            }
+            function currentTrace() {
+                const tk = TECH[state.tech];
+                const tr = tk.ranges ? (tk.ranges.find(r => state.t < r.t1) || tk.ranges[tk.ranges.length - 1]).tk.trace : tk.trace;
+                return tr ? sideName(tr) : null;
+            }
+            function buildGuides() {
+                disposeGroup(guideGroup);
+                ghosts.forEach(g => g.label = null);
+                const tk = TECH[state.tech];
+                const mc = mocapClipFor(tk);
+                buildGhosts();
+                if (!state.guides || mc) return;
+                [[0, 0x9AA3AE, 0.5, 0.011], [tk.peak, 0xD9442F, 0.75, 0.015]].forEach(([t, col, op, y]) => {
+                    apply(S, poseOf(tk.a, t)); S.holder.updateMatrixWorld(true);
+                    for (const side of ['l', 'r']) {
+                        const m = S.points[side + 'Foot'];
+                        m.getWorldPosition(tmpV); if (tmpV.y > 0.14) continue;
+                        m.getWorldDirection(tmpD);
+                        const yaw = Math.atan2(tmpD.x, tmpD.z);
+                        const fp = new T.Mesh(new T.CircleGeometry(0.14, 24), new T.MeshBasicMaterial({ color: col, transparent: true, opacity: op, depthWrite: false }));
+                        fp.rotation.order = 'YXZ'; fp.rotation.set(-Math.PI / 2, yaw + Math.PI, 0); fp.scale.set(0.45, 1, 1);
+                        fp.position.set(tmpV.x, y, tmpV.z);
+                        guideGroup.add(fp);
+                    }
+                });
+                const p0 = poseOf(tk.a, 0), p1 = poseOf(tk.a, tk.peak);
+                const yaw0 = (p0.root[1] + p0.spine[1]) * D, yaw1 = (p1.root[1] + p1.spine[1]) * D;
+                apply(S, p0); S.holder.updateMatrixWorld(true);
+                S.points.hips.getWorldPosition(tmpV);
+                const centre = tmpV.clone();
+                if (Math.abs(yaw1 - yaw0) > 12 * D && Math.abs(p1.root[0]) < 45) {
+                    const pts = [], n = 20, r = 0.42;
+                    for (let i = 0; i <= n; i++) { const a = yaw0 + (yaw1 - yaw0) * i / n; pts.push(new T.Vector3(centre.x + r * Math.sin(a), centre.y + 0.05, centre.z + r * Math.cos(a))); }
+                    const curve = new T.CatmullRomCurve3(pts);
+                    const amber = new T.MeshBasicMaterial({ color: 0xFFC53D, depthTest: false, transparent: true, opacity: 0.95 });
+                    const tube = new T.Mesh(new T.TubeGeometry(curve, 24, 0.012, 8, false), amber); tube.renderOrder = 18; guideGroup.add(tube);
+                    const cone = new T.Mesh(new T.ConeGeometry(0.045, 0.11, 10), amber); cone.renderOrder = 18;
+                    const end = pts[n], tan = curve.getTangent(1).normalize();
+                    cone.position.copy(end).addScaledVector(tan, 0.04);
+                    cone.quaternion.setFromUnitVectors(new T.Vector3(0, 1, 0), tan);
+                    guideGroup.add(cone);
+                    const lab = makeLabel(`Hips and shoulders turn ${Math.round(Math.abs(yaw1 - yaw0) / D)}°`, '#FFC53D', true);
+                    lab.position.set(centre.x, centre.y + 0.32, centre.z); guideGroup.add(lab);
+                }
+                const dx = p1.pos[0] - p0.pos[0], dz = p1.pos[2] - p0.pos[2];
+                const len = Math.hypot(dx, dz);
+                if (len > 0.06) {
+                    const arrow = new T.ArrowHelper(new T.Vector3(dx, 0, dz).normalize(), new T.Vector3(p0.pos[0], 0.03, p0.pos[2] - 0.05), len + 0.1, 0xFFC53D, 0.1, 0.06);
+                    guideGroup.add(arrow);
+                }
+            }
+            function pointFor(who, name) {
+                const tk = TECH[state.tech];
+                const mc = mocapClipFor(tk);
+                name = sideName(name);
+                if (mc) {
+                    const i = who === 'A' ? 0 : 1;
+                    if (i === 1 && !mocap.chars[1].visible) return null;
+                    return mocap.bones[i][name] || null;
+                }
+                const f = who === 'A' ? A : B;
+                if (who === 'B' && !B.holder.visible) return null;
+                return f.points[name] || null;
+            }
+            function updateMarks(now) {
+                const pulse = 1 + 0.12 * Math.sin(now / 160);
+                for (const { m, ring, label } of marks) {
+                    const on = state.guides && state.t >= m.t0 && state.t <= m.t1;
+                    const pt = on ? pointFor(m.who, m.pt) : null;
+                    ring.visible = label.visible = !!pt;
+                    if (!pt) continue;
+                    pt.getWorldPosition(tmpV);
+                    ring.position.copy(tmpV); ring.scale.set(0.22 * pulse, 0.22 * pulse, 1);
+                    label.position.copy(tmpV).add(new T.Vector3(0, 0.17 + (m.dy || 0), 0));
+                }
+            }
+            /* ---------------- Readouts ---------------- */
+            const RO = Object.fromEntries(['lk', 'rk', 'le', 're', 'hip', 'lean', 'head', 'hand'].map(k => [k, document.getElementById('r-' + k)]));
+            function angleAt(a, b, c) { // angle at b between a and c, degrees
+                v1.subVectors(a, b); v2.subVectors(c, b);
+                return Math.acos(Math.min(1, Math.max(-1, v1.dot(v2) / (v1.length() * v2.length() || 1)))) / D;
+            }
+            const wp = (who, name, out) => { const p = pointFor(who, name); if (!p) return null; p.getWorldPosition(out); return out; };
+            let roTick = 0;
+            function updateReadouts() {
+                if ((roTick++ % 3) !== 0) return;
+                const lead = state.southpaw ? 'r' : 'l', rear = state.southpaw ? 'l' : 'r';
+                const raw = (n, out) => {
+                    const p = (mocapClipFor(TECH[state.tech]) ? mocap.bones[0] : A.points)[n];
+                    if (!p) return false;
+                    p.getWorldPosition(out);
+                    return true;
+                };
+                const knee = (s) => {
+                    if (raw(s + 'HipJoint', roV1) && raw(s + 'Knee', roV2) && raw(s + 'Foot', roV3)) {
+                        return Math.round(180 - angleAt(roV1, roV2, roV3)) + '°';
+                    }
+                    return '–';
+                };
+                const elbow = (s) => {
+                    if (raw(s + 'Shoulder', roV1) && raw(s + 'Elbow', roV2) && raw(s + 'Glove', roV3)) {
+                        return Math.round(angleAt(roV1, roV2, roV3)) + '°';
+                    }
+                    return '–';
+                };
+                RO.lk.textContent = knee(lead); RO.rk.textContent = knee(rear);
+                RO.le.textContent = elbow(lead); RO.re.textContent = elbow(rear);
+                if (raw('lHipJoint', roV1) && raw('rHipJoint', roV2)) {
+                    v3.subVectors(roV1, roV2);
+                    RO.hip.textContent = Math.round(Math.abs(Math.atan2(-v3.z, v3.x) / D)) + '°';
+                } else RO.hip.textContent = '–';
+                if (raw('hips', roV1) && raw('neck', roV2)) {
+                    v3.subVectors(roV2, roV1);
+                    const lean = Math.round(Math.acos(Math.min(1, v3.y / (v3.length() || 1))) / D);
+                    RO.lean.textContent = lean < 4 ? 'upright' : `${lean}° ${v3.z >= 0 ? 'fwd' : 'back'}`;
+                } else RO.lean.textContent = '–';
+                RO.head.textContent = raw('head', roV1) ? roV1.y.toFixed(2) + ' m' : '–';
+                RO.hand.textContent = raw(lead + 'Glove', roV1) ? roV1.y.toFixed(2) + ' m' : '–';
+            }
+            /* ---------------- State ---------------- */
+            const state = { tech: 0, mode: 'single', speed: 1, playing: true, t: 0, cam: 0, src: 'clay', ghosts: true, guides: true, step: false, stepOnce: false, split: false, drill: false, southpaw: false };
+            /* ---------------- Motion capture (optional) ---------------- */
+            const mocap = { ready: false, clips: {}, chars: [null, null], mixers: [null, null], actions: [null, null], bones: [{}, {}], error: null };
+            function loadScript(src) {
+                return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('failed ' + src)); document.head.appendChild(s); });
+            }
+            function loadClipFile(url) {
+                return new Promise((res, rej) => {
+                    const isGltf = /\.gl(b|tf)(\?|$)/i.test(url);
+                    const loader = isGltf ? new T.GLTFLoader() : new T.FBXLoader();
+                    loader.load(url, (r) => {
+                        const object = isGltf ? r.scene : r;
+                        const anims = isGltf ? r.animations : (r.animations || []);
+                        let hasMesh = false; object.traverse(o => { if (o.isSkinnedMesh) hasMesh = true; });
+                        res({ object, clip: anims[0] || null, hasMesh, url });
+                    }, undefined, rej);
+                });
+            }
+            function mountCharacter(i, object) {
+                const holder = new T.Group();
+                const box = new T.Box3().setFromObject(object);
+                const h = box.max.y - box.min.y || 1;
+                const s = 1.75 / h;
+                object.scale.setScalar(s);
+                object.position.y = -box.min.y * s;
+                object.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; if (o.material) o.material.side = T.DoubleSide; } });
+                holder.add(object);
+                if (i === 1) { holder.rotation.y = Math.PI; holder.position.z = 1.45; }
+                holder.visible = false;
+                scene.add(holder);
+                mocap.chars[i] = holder;
+                mocap.mixers[i] = new T.AnimationMixer(object);
+                const bones = {};
+                object.traverse(o => { for (const [k, suffix] of Object.entries(MOCAP_BONES)) if (!bones[k] && o.name && o.name.endsWith(suffix)) bones[k] = o; });
+                mocap.bones[i] = bones;
+            }
+            async function initMocap() {
+                let manifest;
+                try { const r = await fetch('clips.json', { cache: 'no-store' }); if (!r.ok) return; manifest = await r.json(); } catch { return; }
+                const base = 'https://unpkg.com/three@0.128.0/examples/js/';
+                try { await loadScript(base + 'libs/fflate.min.js'); await loadScript(base + 'loaders/FBXLoader.js'); await loadScript(base + 'loaders/GLTFLoader.js'); }
+                catch (e) { mocap.error = 'Could not load the FBX/GLB loaders (network).'; console.warn(e); return; }
+                const entries = Object.entries(manifest.clips || {});
+                const loaded = await Promise.all(entries.map(async ([key, v]) => {
+                    const spec = typeof v === 'string' ? { a: v } : v;
+                    const out = { key, spec, a: null, b: null };
+                    for (const side of ['a', 'b']) if (spec[side]) { try { out[side] = await loadClipFile(spec[side]); } catch (e) { console.warn('Clip failed to load:', spec[side], e); } }
+                    return out;
+                }));
+                for (const c of loaded) if (c.a && c.a.clip) mocap.clips[c.key.toUpperCase()] = c;
+                if (!Object.keys(mocap.clips).length) { mocap.error = 'clips.json found but no clip loaded.'; console.warn(mocap.error); return; }
+                const charUrl = manifest.character || (loaded.map(c => c.a).find(c => c && c.hasMesh) || {}).url;
+                if (!charUrl) { mocap.error = 'No skinned character found. Download at least one clip "With Skin", or set "character" in clips.json.'; console.warn(mocap.error); return; }
+                try { mountCharacter(0, (await loadClipFile(charUrl)).object); mountCharacter(1, (await loadClipFile(charUrl)).object); }
+                catch (e) { mocap.error = 'Character failed to load: ' + charUrl; console.warn(e); return; }
+                mocap.ready = true;
+                const btn = document.querySelector('#srcSeg button[data-src="mocap"]');
+                btn.disabled = false; btn.title = `${Object.keys(mocap.clips).length} clip(s) loaded`;
+                renderCard();
+            }
+            function setSrc(s) {
+                if (s === 'mocap' && !mocap.ready) return;
+                state.src = s; state.t = 0; trailCount = 0;
+                document.querySelectorAll('#srcSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.src === s)));
+                renderCard(); buildGuides();
+            }
+            const mocapClipFor = (tk) => (state.src === 'mocap' && mocap.ready) ? mocap.clips[tk.key] || null : null;
+            function driveMocap(i, entry, t) {
+                const mixer = mocap.mixers[i], clip = entry.clip;
+                if (mocap.actions[i] && mocap.actions[i].getClip() !== clip) { mocap.actions[i].stop(); mocap.actions[i] = null; }
+                if (!mocap.actions[i]) { mocap.actions[i] = mixer.clipAction(clip); mocap.actions[i].play(); mocap.actions[i].paused = true; }
+                mocap.actions[i].time = Math.min(clip.duration - 1e-4, t * clip.duration);
+                mixer.update(0);
+            }
+            /* strike trail */
+            const TRAIL_N = 300;
+            const trailGeo = new T.BufferGeometry();
+            trailGeo.setAttribute('position', new T.BufferAttribute(new Float32Array(TRAIL_N * 3), 3));
+            const trail = new T.Line(trailGeo, new T.LineBasicMaterial({ color: 0xF2B5AB, transparent: true, opacity: 0.9 }));
+            trail.frustumCulled = false; scene.add(trail);
+            let trailCount = 0, trailLastT = 0, trailLastPoint = null;
+            const camPresets = [{ theta: 0.62, phi: 1.22, r: 4.6 }, { theta: 1.57, phi: 1.3, r: 4.4 }, { theta: 0.4, phi: 0.55, r: 5.2 }, { theta: 3.05, phi: 1.25, r: 4.2 }];
+            const cam = { theta: 0.62, phi: 1.22, r: 4.6, target: new T.Vector3(0, 1.0, 0) };
+            const camGoal = { ...camPresets[0] };
+            const camTargetGoal = new T.Vector3(0, 1.0, 0);
+            const partnerShown = () => state.mode === 'spar' || !!TECH[state.tech].needsPartner;
+            function setTech(i) {
+                saveNotes();
+                state.tech = i; state.t = 0; trailCount = 0; state.playing = true;
+                renderCard(); renderKeys(); buildMarks(); buildGuides(); loadNotes();
+            }
+            function setMode(m) {
+                state.mode = m; state.t = 0; trailCount = 0;
+                document.querySelectorAll('#modeSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === m)));
+                renderCard();
+            }
+            function setStance(sp) {
+                state.southpaw = sp; state.t = 0; trailCount = 0;
+                document.querySelectorAll('#stanceSeg button').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.stance === 'southpaw') === sp)));
+                mocap.chars.forEach(c => { if (c) c.scale.x = sp ? -1 : 1; });
+                buildGuides();
+            }
+            function setSpeed(s) {
+                state.speed = s;
+                document.querySelectorAll('#speedSeg button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.speed === s)));
+            }
+            function setCam(i) {
+                state.cam = i; if (i < 4) Object.assign(camGoal, camPresets[i]);
+                document.querySelectorAll('#camSeg button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.cam === i)));
+            }
+            function setOpt(name, val) {
+                state[name] = val;
+                document.querySelector(`#viewSeg button[data-opt="${name}"]`).setAttribute('aria-pressed', String(val));
+                if (name === 'split') { document.body.classList.toggle('split', val); resize(); }
+                if (name === 'ghosts' || name === 'guides') buildGuides();
+                if (name === 'drill') val ? startDrill() : stopDrill();
+            }
+            /* phases and stepping */
+            function currentPhases() {
+                const tk = TECH[state.tech];
+                const mc = mocapClipFor(tk);
+                return (mc && mc.spec.phases) || tk.phases;
+            }
+            function phaseIndex(t) {
+                const ph = currentPhases();
+                for (let i = 0; i < ph.length; i++) if (t < ph[i][0]) return i;
+                return ph.length - 1;
+            }
+            function nextPhase() {
+                if (state.playing) return;
+                if (state.t >= 0.999) { state.t = 0; trailCount = 0; }
+                state.stepOnce = true; state.playing = true;
+            }
+            function prevPhase() {
+                const ph = currentPhases();
+                let i = phaseIndex(state.t);
+                const start = i > 0 ? ph[i - 1][0] : 0;
+                if (state.t - start < 0.02 && i > 0) i--;
+                state.t = i > 0 ? ph[i - 1][0] : 0;
+                if (state.t === 0) trailCount = 0;
+                state.playing = false;
+            }
+            /* ---------------- Notes (saved in this browser when storage is available) ---------------- */
+            let notesMem = {};
+            const NOTES_KEY = 'cagecraft3d-notes';
+            const MAX_NOTE_LENGTH = 10000;
+            function storageGet() {
+                try {
+                    const s = localStorage.getItem(NOTES_KEY);
+                    if (s) {
+                        const parsed = JSON.parse(s);
+                        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                            notesMem = parsed;
+                            return true;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Could not read notes from localStorage', e);
+                }
+                return false;
+            }
+            function storageSet() {
+                try {
+                    localStorage.setItem(NOTES_KEY, JSON.stringify(notesMem));
+                    return true;
+                } catch (e) {
+                    console.warn('Could not save notes to localStorage', e);
+                    return false;
+                }
+            }
+            const notesEl = document.getElementById('notes'), notesStatus = document.getElementById('notesStatus');
+            function loadNotes() { notesEl.value = notesMem[TECH[state.tech].key] || ''; }
+            function saveNotes() {
+                const k = TECH[state.tech].key;
+                const raw = notesEl.value.trim();
+                if (raw) notesMem[k] = raw.slice(0, MAX_NOTE_LENGTH); else delete notesMem[k];
+                notesStatus.textContent = storageSet() ? 'Saved' : 'Kept for this session only';
+            }
+            let notesTimer;
+            notesEl.addEventListener('input', () => { clearTimeout(notesTimer); notesTimer = setTimeout(saveNotes, 400); });
+            notesEl.addEventListener('keydown', e => e.stopPropagation());
+            document.getElementById('exportNotes').addEventListener('click', () => {
+                saveNotes();
+                const out = Object.fromEntries(Object.entries(notesMem).map(([k, v]) => [`${k} ${byKeyAll(k)}`, v]));
+                const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+                const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'cagecraft-notes.json'; a.click();
+                setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+            });
+            const byKeyAll = (k) => (TECH.find(t => t.key === k) || {}).name || '';
+            /* ---------------- Drill ---------------- */
+            const drill = { set: 'strike', gap: 5, phase: 'idle', at: 0, last: -1, audio: null };
+            const calloutEl = document.getElementById('callout');
+            function drillPool() { return TECH.map((t, i) => [t, i]).filter(([t]) => drill.set === 'all' || t.group === drill.set).map(([, i]) => i); }
+            function tick(freq, dur) {
+                if (!document.getElementById('drillTick').checked) return;
+                try {
+                    if (!drill.audio) drill.audio = new (window.AudioContext || window.webkitAudioContext)();
+                    const ctx = drill.audio, o = ctx.createOscillator(), g = ctx.createGain();
+                    o.frequency.value = freq; o.connect(g); g.connect(ctx.destination);
+                    g.gain.setValueAtTime(0.0001, ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + 0.005); g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + dur);
+                    o.start(); o.stop(ctx.currentTime + dur);
+                } catch { }
+            }
+            function say(text) {
+                if (!document.getElementById('drillVoice').checked || !window.speechSynthesis) return;
+                try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.rate = 1.05; speechSynthesis.speak(u); } catch { }
+            }
+            function startDrill() {
+                document.getElementById('drill').classList.add('on');
+                drill.phase = 'wait'; drill.at = performance.now() + 800;
+                state.step = false; document.querySelector('#viewSeg button[data-opt="step"]').setAttribute('aria-pressed', 'false');
+            }
+            function stopDrill() {
+                document.getElementById('drill').classList.remove('on');
+                calloutEl.classList.remove('on');
+                drill.phase = 'idle'; state.playing = true;
+                try { speechSynthesis.cancel(); } catch { }
+            }
+            function updateDrill(now) {
+                if (drill.phase === 'idle' || now < drill.at) return;
+                if (drill.phase === 'wait') {
+                    const pool = drillPool(); if (!pool.length) { stopDrill(); setOpt('drill', false); return; }
+                    let pick = pool[Math.floor(Math.random() * pool.length)];
+                    if (pool.length > 1) while (pick === drill.last) pick = pool[Math.floor(Math.random() * pool.length)];
+                    drill.last = pick;
+                    const tk = TECH[pick];
+                    calloutEl.querySelector('.big').textContent = tk.name;
+                    calloutEl.querySelector('.sub').innerHTML = `<kbd>${tk.key}</kbd>${tk.side}. Do it now, the reference follows.`;
+                    calloutEl.classList.add('on');
+                    say(tk.name); tick(880, 0.08);
+                    state.playing = false;
+                    drill.phase = 'perform'; drill.at = now + drill.gap * 1000 * 0.55; drill.pick = pick;
+                } else if (drill.phase === 'perform') {
+                    calloutEl.classList.remove('on');
+                    setTech(drill.pick); tick(440, 0.08);
+                    drill.phase = 'show'; drill.at = now + (TECH[drill.pick].dur / state.speed) * 1000 + 300;
+                } else if (drill.phase === 'show') {
+                    state.playing = false; state.t = 0.9995;
+                    drill.phase = 'wait'; drill.at = now + Math.max(600, drill.gap * 1000 * 0.45);
+                }
+            }
+            document.querySelectorAll('#drillSet button').forEach(b => b.addEventListener('click', () => { drill.set = b.dataset.set; document.querySelectorAll('#drillSet button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); }));
+            document.querySelectorAll('#drillGap button').forEach(b => b.addEventListener('click', () => { drill.gap = +b.dataset.gap; document.querySelectorAll('#drillGap button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); }));
+            /* ---------------- UI ---------------- */
+            const keysEl = document.getElementById('keys');
+            function renderKeys() {
+                keysEl.innerHTML = '';
+                [['strike', 'Striking'], ['grapple', 'Grappling'], ['combo', 'Combinations']].forEach(([grp, label]) => {
+                    const row = document.createElement('div'); row.className = 'row';
+                    const l = document.createElement('label'); l.textContent = label; row.appendChild(l);
+                    TECH.forEach((tk, i) => {
+                        if (tk.group !== grp) return;
+                        const b = document.createElement('button');
+                        b.className = 'key' + (i === state.tech ? ' on' : '');
+                        b.innerHTML = `<kbd>${tk.key}</kbd><span>${tk.name}<em>${tk.side}</em></span>`;
+                        b.addEventListener('click', () => setTech(i));
+                        row.appendChild(b);
+                    });
+                    keysEl.appendChild(row);
+                });
+            }
+            function renderCard() {
+                const tk = TECH[state.tech];
+                document.getElementById('techName').textContent = tk.name;
+                document.getElementById('techKey').textContent = tk.key;
+                document.getElementById('techSide').textContent = tk.side + (state.southpaw ? ' (southpaw)' : '');
+                document.getElementById('cues').innerHTML = tk.cues.map(c => `<li>${c}</li>`).join('');
+                const phases = currentPhases();
+                const ph = document.getElementById('phases');
+                ph.innerHTML = '';
+                phases.forEach(() => { const i = document.createElement('i'); i.innerHTML = '<b></b>'; ph.appendChild(i); });
+                ph.style.gridTemplateColumns = phases.map(([u], i) => `${(u - (i ? phases[i - 1][0] : 0))}fr`).join(' ');
+                let note;
+                if (state.mode === 'spar') note = `<span>Partner</span> ${tk.partner}`;
+                else if (tk.needsPartner) note = `<span>Partner</span> ${tk.partner}. Grappling always shows both bodies.`;
+                else note = 'Press Tab to add a sparring partner.';
+                const mc = mocapClipFor(tk);
+                if (state.src === 'mocap') {
+                    if (mc) note += `<br>Motion capture: ${mc.spec.a.split('/').pop()}` + (mc.b ? '' : ' (no partner clip, partner hidden)');
+                    else note += '<br>No motion-capture clip for this technique yet, showing the clay version.';
+                } else if (mocap.error) note += `<br>Mocap unavailable: ${mocap.error}`;
+                document.getElementById('partner').innerHTML = note;
+                lastPhaseShown = -1;
+            }
+            let lastPhaseShown = -1;
+            function updatePhase() {
+                const items = document.querySelectorAll('#phases i');
+                const ph = currentPhases();
+                const idx = phaseIndex(state.t);
+                let prev = 0;
+                ph.forEach(([until], i) => {
+                    if (!items[i]) return;
+                    const on = i === idx;
+                    items[i].classList.toggle('on', on);
+                    const b = items[i].firstChild;
+                    b.style.display = on ? 'block' : 'none';
+                    if (on) b.style.left = `${Math.min(100, ((state.t - prev) / (until - prev)) * 100)}%`;
+                    prev = until;
+                });
+                const [, name, explain] = ph[idx];
+                document.getElementById('phaseName').textContent = `${idx + 1}. ${name}` + (state.playing ? '' : ' (paused)');
+                if (idx !== lastPhaseShown) { document.getElementById('explain').textContent = explain || ''; lastPhaseShown = idx; }
+            }
+            document.querySelectorAll('#modeSeg button').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
+            document.querySelectorAll('#stanceSeg button').forEach(b => b.addEventListener('click', () => setStance(b.dataset.stance === 'southpaw')));
+            document.querySelectorAll('#speedSeg button').forEach(b => b.addEventListener('click', () => setSpeed(+b.dataset.speed)));
+            document.querySelectorAll('#camSeg button').forEach(b => b.addEventListener('click', () => setCam(+b.dataset.cam)));
+            document.querySelectorAll('#srcSeg button').forEach(b => b.addEventListener('click', () => setSrc(b.dataset.src)));
+            document.querySelectorAll('#viewSeg button').forEach(b => b.addEventListener('click', () => setOpt(b.dataset.opt, !state[b.dataset.opt])));
+            document.getElementById('nextPh').addEventListener('click', () => { if (state.playing) state.playing = false; nextPhase(); });
+            document.getElementById('prevPh').addEventListener('click', prevPhase);
+            addEventListener('keydown', (e) => {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+                const k = e.key.length === 1 ? e.key.toUpperCase() : e.key;
+                const idx = TECH.findIndex(t => t.key === k);
+                if (idx >= 0) { if (state.drill) setOpt('drill', false); setTech(idx); return; }
+                switch (e.key) {
+                    case 'Tab': e.preventDefault(); setMode(state.mode === 'spar' ? 'single' : 'spar'); break;
+                    case ' ': e.preventDefault(); state.playing = !state.playing; state.stepOnce = false; break;
+                    case 'Enter': e.preventDefault(); if (state.playing) state.playing = false; else nextPhase(); break;
+                    case 'Backspace': e.preventDefault(); prevPhase(); break;
+                    case 'a': case 'A': setStance(!state.southpaw); break;
+                    case 'm': case 'M': setSrc(state.src === 'mocap' ? 'clay' : 'mocap'); break;
+                    case 'g': case 'G': setOpt('ghosts', !state.ghosts); break;
+                    case 'f': case 'F': setOpt('guides', !state.guides); break;
+                    case 'l': case 'L': setOpt('step', !state.step); break;
+                    case 'v': case 'V': setOpt('split', !state.split); break;
+                    case 'd': case 'D': setOpt('drill', !state.drill); break;
+                    case 's': case 'S': setSpeed(state.speed === 1 ? 0.5 : state.speed === 0.5 ? 0.25 : 1); break;
+                    case 'c': case 'C': setCam((state.cam + 1) % 5); break;
+                    case ']': state.playing = false; state.t = (state.t + 0.015) % 1; break;
+                    case '[': state.playing = false; state.t = (state.t - 0.015 + 1) % 1; if (state.t > 0.985) trailCount = 0; break;
+                    case 'ArrowLeft': camGoal.theta -= 0.12; break;
+                    case 'ArrowRight': camGoal.theta += 0.12; break;
+                    case 'ArrowUp': camGoal.phi = Math.max(0.25, camGoal.phi - 0.08); break;
+                    case 'ArrowDown': camGoal.phi = Math.min(1.5, camGoal.phi + 0.08); break;
+                }
+            });
+            let drag = null;
+            const el = renderer.domElement;
+            el.addEventListener('pointerdown', (e) => { drag = { x: e.clientX, y: e.clientY }; el.setPointerCapture(e.pointerId); });
+            el.addEventListener('pointermove', (e) => {
+                if (!drag || state.cam === 4) return;
+                camGoal.theta -= (e.clientX - drag.x) * 0.006;
+                camGoal.phi = Math.min(1.5, Math.max(0.25, camGoal.phi - (e.clientY - drag.y) * 0.005));
+                cam.theta = camGoal.theta; cam.phi = camGoal.phi;
+                drag = { x: e.clientX, y: e.clientY };
+            });
+            el.addEventListener('pointerup', () => drag = null);
+            el.addEventListener('wheel', (e) => { camGoal.r = Math.min(9, Math.max(2.2, camGoal.r + e.deltaY * 0.004)); }, { passive: true });
+            function viewports() {
+                const W = innerWidth, H = innerHeight;
+                if (!state.split) return [{ x: 0, y: 0, w: W, h: H, cam: camera }];
+                const mw = Math.round(W * 0.62), sw = W - mw, sh = Math.floor(H / 3);
+                return [
+                    { x: 0, y: 0, w: mw, h: H, cam: camera },
+                    { x: mw, y: H - sh, w: sw, h: sh, cam: fixedCams[0] },
+                    { x: mw, y: H - 2 * sh, w: sw, h: sh, cam: fixedCams[1] },
+                    { x: mw, y: 0, w: sw, h: H - 2 * sh, cam: fixedCams[2] }
+                ];
+            }
+            function resize() {
+                renderer.setSize(innerWidth, innerHeight);
+                const vps = viewports();
+                vps.forEach(v => { v.cam.aspect = v.w / v.h; v.cam.updateProjectionMatrix(); });
+                if (state.split) vps.forEach((v, i) => { const l = document.getElementById('vl' + i); l.style.left = (v.x + 10) + 'px'; l.style.top = (innerHeight - v.y - v.h + 10) + 'px'; });
+            }
+            addEventListener('resize', resize); resize();
+            /* ---------------- Loop ---------------- */
+            let last = performance.now();
+            const eyeOffset = new T.Vector3();
+            function frame(now) {
+                const dt = Math.min(0.05, (now - last) / 1000); last = now;
+                updateDrill(now);
+                const tk = TECH[state.tech];
+                const mc = mocapClipFor(tk);
+                const dur = mc ? mc.a.clip.duration : tk.dur;
+                if (state.playing) {
+                    const prev = state.t;
+                    let t = state.t + (dt * state.speed) / dur;
+                    if (state.step || state.stepOnce) {
+                        for (const [u] of currentPhases()) if (prev < u && t >= u) { t = u - 0.0005; state.playing = false; state.stepOnce = false; break; }
+                    }
+                    if (t >= 1) { t -= 1; trailCount = 0; }
+                    state.t = t;
+                }
+                const showB = partnerShown();
+                const traceName = currentTrace();
+                let tracePoint = null;
+                if (mc) {
+                    A.holder.visible = false; B.holder.visible = false;
+                    mocap.chars[0].visible = true;
+                    driveMocap(0, mc.a, state.t);
+                    const bShown = showB && !!mc.b;
+                    mocap.chars[1].visible = bShown;
+                    if (bShown) driveMocap(1, mc.b, state.t);
+                    tracePoint = traceName ? mocap.bones[0][traceName] || null : null;
+                } else {
+                    if (mocap.chars[0]) mocap.chars[0].visible = false;
+                    if (mocap.chars[1]) mocap.chars[1].visible = false;
+                    A.holder.visible = true; B.holder.visible = showB;
+                    apply(A, poseOf(tk.a, state.t));
+                    if (showB) apply(B, poseOf(tk.b, state.t));
+                    tracePoint = traceName ? A.points[traceName] : null;
+                    setFocus(A, state.guides ? currentFocus() : null);
+                }
+                B.joints.head.visible = !(state.cam === 4 && showB);
+                scene.updateMatrixWorld();
+                if (tracePoint !== trailLastPoint) { trailCount = 0; trailLastPoint = tracePoint; }
+                trail.visible = !!tracePoint;
+                if (tracePoint) {
+                    if (state.playing && (state.t - trailLastT > 0.004 || state.t < trailLastT) && trailCount < TRAIL_N) {
+                        tracePoint.getWorldPosition(tmpV);
+                        const arr = trailGeo.attributes.position.array;
+                        arr[trailCount * 3] = tmpV.x; arr[trailCount * 3 + 1] = tmpV.y; arr[trailCount * 3 + 2] = tmpV.z;
+                        trailCount++; trailLastT = state.t;
+                        trailGeo.attributes.position.needsUpdate = true;
+                    }
+                    trailGeo.setDrawRange(0, trailCount);
+                }
+                updateMarks(now);
+                updateReadouts();
+                const stepCam = tk.ranges ? (tk.ranges.find(r => state.t < r.t1) || tk.ranges[tk.ranges.length - 1]).tk.cam : tk.cam;
+                if (stepCam) camTargetGoal.set(stepCam[0], stepCam[1], stepCam[2]);
+                else camTargetGoal.set(0, 1.0, showB ? 0.7 : 0.0);
+                cam.target.lerp(camTargetGoal, 0.08);
+                cam.theta += (camGoal.theta - cam.theta) * 0.12;
+                cam.phi += (camGoal.phi - cam.phi) * 0.12;
+                cam.r += (camGoal.r - cam.r) * 0.12;
+                const place = (c, theta, phi, r) => {
+                    c.position.set(cam.target.x + r * Math.sin(phi) * Math.sin(theta), cam.target.y + r * Math.cos(phi), cam.target.z + r * Math.sin(phi) * Math.cos(theta));
+                    c.lookAt(cam.target);
+                };
+                if (state.cam === 4) {
+                    const eye = showB ? wp('B', 'eyes', eyeOffset) : null;
+                    const target = wp('A', 'chest', tmpD) || cam.target;
+                    if (eye) camera.position.lerp(eye, 0.3); else camera.position.lerp(new T.Vector3(0, 1.62, 1.45), 0.3);
+                    camera.lookAt(target.x, target.y + 0.25, target.z);
+                } else place(camera, cam.theta, cam.phi, cam.r);
+                FIXED_VIEWS.forEach((v, i) => place(fixedCams[i], v.theta, v.phi, cam.r));
+                updatePhase();
+                const vps = viewports();
+                renderer.setScissorTest(vps.length > 1);
+                for (const v of vps) {
+                    renderer.setViewport(v.x, v.y, v.w, v.h);
+                    renderer.setScissor(v.x, v.y, v.w, v.h);
+                    renderer.render(scene, v.cam);
+                }
+                requestAnimationFrame(frame);
+            }
+            storageGet();
+            setMode('single'); setTech(0);
+            requestAnimationFrame(frame);
+            initMocap();
+        })();
+    </script>
+</body>
+
+</html>
