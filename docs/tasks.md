@@ -253,7 +253,7 @@
 
 #### TASK-018: End-to-End WebGL Render & Telemetry Performance Benchmark Verification
 - **Layer:** 6 (Hardening & observability)
-- **Status:** `[ ]`
+- **Status:** `[x]`
 - **Linked stories:** US-001, US-005
 - **Linked component:** Render Pipeline Benchmark (NFR-01, NFR-02)
 - **Depends on:** TASK-015, TASK-017
