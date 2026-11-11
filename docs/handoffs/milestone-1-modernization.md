@@ -75,3 +75,4 @@ npm run build
 - **Playback Speed (1x, 0.5x, 0.25x):** <kbd>S</kbd>
 - **Sparring Partner Mode:** <kbd>Tab</kbd>
 - **Strikes / Techniques:** Keys `1`–`0`, `Q`–`P`, `Z`, `X`, `N`, `H`, `J`, `K`
+

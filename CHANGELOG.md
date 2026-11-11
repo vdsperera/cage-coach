@@ -32,3 +32,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **RF-05 (Texture Memory Leaks):** Implemented deterministic billboard texture caching (`labelTexCache`, `sharedRingTex`) to avoid canvas re-creation on technique selection.
 - **RF-08 (Unbounded Storage Risk):** Enforced 10,000-character cap and defensive JSON shape parsing for user technique notes.
 - **RF-07 (Mobile Canvas Gesture Hijacking):** Added `touch-action: none` to 3D render canvas to prevent mobile browser gesture conflicts.
+

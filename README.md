@@ -125,3 +125,4 @@ npm test
 ## 📜 License
 
 MIT License. Built for martial artists and engineers passionate about biomechanics and combat sports.
+
