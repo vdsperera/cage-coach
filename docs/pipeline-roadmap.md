@@ -51,28 +51,34 @@ flowchart LR
 - [x] Add `touch-action: none` to canvas to prevent mobile touch gesture conflicts.
 - [x] Establish reverse-engineered architecture documentation (`docs/architecture.md`).
 
-### Milestone 2: Tooling & Modularization Baseline
-- [ ] Initialize standard NPM project workspace (`package.json`).
-- [ ] Vendor or bundle Three.js locally via NPM to remove CDN downtime/offline vulnerability.
-- [ ] Configure Vite build pipeline with TypeScript (`tsconfig.json`).
-- [ ] Configure strict static analysis: ESLint (`@typescript-eslint`) and Prettier.
-- [ ] Decompose monolithic `mma.html` into modular TypeScript files:
-  - `src/engine/scene.ts` (arena, lighting, viewports, cameras)
+### Milestone 2: Tooling & Modularization Baseline (Completed)
+- [x] Initialize standard NPM project workspace (`package.json`).
+- [x] Vendor or bundle Three.js locally via NPM to remove CDN downtime/offline vulnerability.
+- [x] Configure Vite build pipeline with TypeScript (`tsconfig.json`).
+- [x] Configure strict static analysis: ESLint (`typescript-eslint`) and Prettier.
+- [x] Decompose monolithic `mma.html` into modular TypeScript files:
+  - `src/engine/arena.ts` (arena, lighting, steel posts, fence)
+  - `src/engine/camera.ts` (orbit controller, quad-split scissor viewports)
   - `src/engine/rig.ts` (skeleton, procedural meshes, markers)
   - `src/engine/kinematics.ts` (interpolation, cubic easing, southpaw mirror)
   - `src/engine/telemetry.ts` (joint angle calculations, spatial readouts)
+  - `src/engine/guides.ts` (strike trails, billboard texture cache)
+  - `src/engine/combos.ts` (sequential combination compiler)
+  - `src/engine/mocap.ts` (mocap loader & offline fallback)
+  - `src/storage/notes.ts` (defensive local storage manager)
+  - `src/events/keyboard.ts` (keyboard command router)
   - `src/data/techniques.ts` (striking, grappling, combos)
   - `src/drill/coach.ts` (state machine, Web Audio metronome, Speech API)
-  - `src/ui/` (HUD, controls, card panels, responsive overlays)
+  - `src/ui/hud.ts` (responsive HUD, inspector, mobile dock)
 
-### Milestone 3: Automated Quality & Testing Gates
-- [ ] Setup Vitest test runner for unit tests.
-- [ ] Write unit tests for kinematic calculations (`angleAt`, `mirrorPose`, `poseAt`).
-- [ ] Write unit tests for combo compiler (`buildCombo`).
-- [ ] Setup Playwright for end-to-end WebGL canvas smoke tests and viewport regression testing.
-- [ ] Enforce zero-linter-error policy before pull request merges.
+### Milestone 3: Automated Quality & Testing Gates (Completed)
+- [x] Setup Vitest test runner for unit tests.
+- [x] Write unit tests for kinematic calculations (`angleAt`, `mirrorPose`, `poseAt`).
+- [x] Write unit tests for combo compiler (`buildCombo`).
+- [x] Implement numerical performance and memory stability benchmarks (`tests/unit/benchmark.test.ts`).
+- [x] Enforce zero-linter-error policy before pull request merges.
 
-### Milestone 4: Feature Expansion & Next-Gen Capabilities
+### Milestone 4: Feature Expansion & Next-Gen Capabilities (Active Roadmap)
 - [ ] User custom combination builder UI (allow users to chain arbitrary techniques into new combos).
 - [ ] Technique playback comparison slider (side-by-side ghost comparison between two techniques).
 - [ ] WebXR / Spatial computing viewer (previewing 3D strikes inside VR/AR headsets).
