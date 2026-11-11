@@ -83,6 +83,14 @@ export interface ComboSliceRange {
   t1: number;
 }
 
+export interface TechniqueMistake {
+  flaw: string;
+  consequence: string;
+  correction: string;
+  errorPose: Partial<Pose>;
+  errorJoint?: JointIdentifier;
+}
+
 export interface Technique {
   key: string;
   group: 'strike' | 'grapple' | 'combo';
@@ -101,6 +109,7 @@ export interface Technique {
   needsPartner?: boolean;
   cam?: Vector3Tuple;
   ranges?: ComboSliceRange[];
+  mistake?: TechniqueMistake;
 }
 
 export interface ComboDefinition {
@@ -137,6 +146,7 @@ export interface AppState {
   split: boolean;
   drill: boolean;
   southpaw: boolean;
+  mistakes: boolean;
 }
 
 export interface DrillState {

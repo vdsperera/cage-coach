@@ -288,6 +288,40 @@ h4 {
   color: var(--ink);
 }
 
+.mistake-box {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.mistake-box h4 {
+  margin: 0 0 6px 0;
+  color: #f59e0b;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mistake-flaw {
+  color: #f87171;
+  margin-bottom: 4px;
+}
+
+.mistake-consequence {
+  color: var(--ink-2);
+  margin-bottom: 6px;
+}
+
+.mistake-fix {
+  color: #34d399;
+  font-weight: 500;
+}
+
 #notes {
   width: 100%;
   min-height: 64px;

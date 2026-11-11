@@ -14,7 +14,7 @@ export interface HudEventHandlers {
   onSetCamera: (cam: 0 | 1 | 2 | 3 | 4) => void;
   onSetSource: (src: 'clay' | 'mocap') => void;
   onToggleOption: (
-    key: keyof Pick<AppState, 'ghosts' | 'guides' | 'step' | 'split' | 'drill'>
+    key: keyof Pick<AppState, 'ghosts' | 'guides' | 'step' | 'split' | 'drill' | 'mistakes'>
   ) => void;
   onToggleTune: () => void;
   onNextPhase: () => void;
@@ -85,6 +85,28 @@ export class HudController {
         msg += `<br>${mocapNote}`;
       }
       partnerEl.innerHTML = msg;
+    }
+
+    const mistakeBoxEl = document.getElementById('mistakeBox');
+    const mistakeFlawEl = document.getElementById('mistakeFlaw');
+    const mistakeConsequenceEl = document.getElementById('mistakeConsequence');
+    const mistakeFixEl = document.getElementById('mistakeFix');
+
+    if (mistakeBoxEl) {
+      if (tech.mistake) {
+        mistakeBoxEl.style.display = 'block';
+        if (mistakeFlawEl) {
+          mistakeFlawEl.innerHTML = `<strong>Flaw:</strong> ${tech.mistake.flaw}`;
+        }
+        if (mistakeConsequenceEl) {
+          mistakeConsequenceEl.innerHTML = `<strong>Consequence:</strong> ${tech.mistake.consequence}`;
+        }
+        if (mistakeFixEl) {
+          mistakeFixEl.innerHTML = `<strong>Fix:</strong> ${tech.mistake.correction}`;
+        }
+      } else {
+        mistakeBoxEl.style.display = 'none';
+      }
     }
 
     this.lastPhaseShown = -1;
@@ -312,7 +334,10 @@ export class HudController {
         }
         if (opt) {
           this.handlers.onToggleOption(
-            opt as keyof Pick<AppState, 'ghosts' | 'guides' | 'step' | 'split' | 'drill'>
+            opt as keyof Pick<
+              AppState,
+              'ghosts' | 'guides' | 'step' | 'split' | 'drill' | 'mistakes'
+            >
           );
         }
       });

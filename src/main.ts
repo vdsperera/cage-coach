@@ -22,9 +22,11 @@ export * from './storage/notes';
 export * from './events/keyboard';
 export * from './ui/hud';
 export * from './ui/calibrator';
+export * from './data/mistakes';
 
 import type { AppState, Technique, JointIdentifier, AnatomicalMarker, Pose } from './types/kinematics';
 import { BASE_TECHNIQUES, COMBO_DEFS } from './data/techniques';
+import { TECHNIQUE_MISTAKES } from './data/mistakes';
 import { compileAllTechniques } from './engine/combos';
 import { D, poseAt, mirrorPose, sideName } from './engine/kinematics';
 import { buildArena } from './engine/arena';
@@ -54,7 +56,15 @@ import { HudController } from './ui/hud';
 import { PoseCalibrator } from './ui/calibrator';
 
 // 1. Compile Techniques Catalog
-export const ALL_TECHNIQUES: Technique[] = compileAllTechniques(BASE_TECHNIQUES, COMBO_DEFS);
+export const ALL_TECHNIQUES: Technique[] = compileAllTechniques(
+  BASE_TECHNIQUES,
+  COMBO_DEFS
+).map((t) => {
+  if (TECHNIQUE_MISTAKES[t.key]) {
+    t.mistake = TECHNIQUE_MISTAKES[t.key];
+  }
+  return t;
+});
 
 // 2. Application Reactive State
 const state: AppState = {
@@ -72,6 +82,7 @@ const state: AppState = {
   split: false,
   drill: false,
   southpaw: false,
+  mistakes: false,
 };
 
 // 3. Scratch Vectors for Zero-Allocation Hot Path (AP-001)
@@ -115,6 +126,11 @@ const ghostRigs: FighterRig[] = Array.from({ length: GHOST_COUNT }, () => {
   scene.add(g.holder);
   return g;
 });
+
+// Mistake Ghost rig (amber warning silhouette) for visual form correction
+const mistakeRig: FighterRig = makeFighter({ skin: 0xf59e0b, accent: 0xd97706, ghost: true });
+mistakeRig.holder.visible = false;
+scene.add(mistakeRig.holder);
 
 // 6. Camera & Viewport Controller
 const cameraController = new CameraController();
@@ -239,10 +255,44 @@ function buildGhosts(): void {
   }
 }
 
+function buildMistakeGhost(): void {
+  mistakeRig.holder.visible = false;
+  mistakeRig.label = null;
+  if (!state.mistakes) return;
+
+  const tk = getActiveTechnique();
+  if (!tk.mistake) return;
+
+  const rawBasePose = poseOf(tk.a, tk.peak);
+  const rawErrorPose: Pose = {
+    ...rawBasePose,
+    ...tk.mistake.errorPose,
+    root: tk.mistake.errorPose.root ? [...tk.mistake.errorPose.root] : [...rawBasePose.root],
+    spine: tk.mistake.errorPose.spine ? [...tk.mistake.errorPose.spine] : [...rawBasePose.spine],
+    head: tk.mistake.errorPose.head ? [...tk.mistake.errorPose.head] : [...rawBasePose.head],
+  };
+
+  const finalPose = state.southpaw ? mirrorPose(rawErrorPose) : rawErrorPose;
+  apply(mistakeRig, finalPose);
+  mistakeRig.holder.position.set(state.southpaw ? -0.95 : 0.95, 0, 0);
+  mistakeRig.holder.visible = true;
+  mistakeRig.holder.updateMatrixWorld(true);
+
+  const label = makeLabel(`❌ Flaw: ${tk.mistake.flaw}`, '#F87171', true);
+  mistakeRig.label = label;
+  if (mistakeRig.points.head) {
+    mistakeRig.points.head.getWorldPosition(tmpV);
+    label.position.copy(tmpV).add(new THREE.Vector3(0, 0.45, 0));
+    guideGroup.add(label);
+  }
+}
+
 function buildGuides(): void {
   disposeGuideGroup(guideGroup);
   ghostRigs.forEach((g) => (g.label = null));
+  mistakeRig.label = null;
   buildGhosts();
+  buildMistakeGhost();
   if (!state.guides) return;
 
   const tk = getActiveTechnique();
@@ -421,7 +471,7 @@ const hud = new HudController(
     onToggleOption: (opt) => {
       state[opt] = !state[opt];
       hud.updateButtons(state);
-      if (opt === 'ghosts' || opt === 'guides') buildGuides();
+      if (opt === 'ghosts' || opt === 'guides' || opt === 'mistakes') buildGuides();
       if (opt === 'drill') {
         if (state.drill) {
           drillCoach.start(performance.now());
@@ -524,7 +574,7 @@ attachKeyboardRouter({
   toggleOption: (opt) => {
     state[opt] = !state[opt];
     hud.updateButtons(state);
-    if (opt === 'ghosts' || opt === 'guides') buildGuides();
+    if (opt === 'ghosts' || opt === 'guides' || opt === 'mistakes') buildGuides();
   },
   toggleTune: () => {
     if (poseCalibrator.visible) {

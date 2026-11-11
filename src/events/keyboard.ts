@@ -11,7 +11,7 @@ export interface AppActionHandlers {
   prevPhase: () => void;
   toggleStance: () => void;
   toggleMocap: () => void;
-  toggleOption: (key: 'ghosts' | 'guides' | 'step' | 'split' | 'drill') => void;
+  toggleOption: (key: 'ghosts' | 'guides' | 'step' | 'split' | 'drill' | 'mistakes') => void;
   toggleTune: () => void;
   cycleSpeed: () => void;
   cycleCamera: () => void;
@@ -41,7 +41,7 @@ export const HOTKEY_CATALOG: HotkeyItem[] = [
   { key: 'G', label: 'G', description: 'Toggle Ghost breakdown silhouettes' },
   { key: 'F', label: 'F', description: 'Toggle Focus highlights and guides' },
   { key: 'L', label: 'L', description: 'Toggle Auto-step phase pause' },
-  { key: 'M', label: 'M', description: 'Toggle Procedural Clay / Mocap source' },
+  { key: 'M', label: 'M', description: 'Toggle Common Mistakes & Form Correction Ghost' },
   { key: 'Arrows', label: '← → ↑ ↓', description: 'Orbit camera rotation' },
 ];
 
@@ -135,7 +135,7 @@ export function attachKeyboardRouter(
 
       case 'm':
       case 'M':
-        handlers.toggleMocap();
+        handlers.toggleOption('mistakes');
         break;
 
       case 'g':

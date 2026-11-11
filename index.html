@@ -25,13 +25,14 @@
     <div class="seg panel" id="srcSeg">
       <button data-src="clay" aria-pressed="true">Clay</button>
       <button data-src="mocap" aria-pressed="false" disabled
-        title="Add a clips.json next to this page to enable motion capture">Mocap<kbd>M</kbd></button>
+        title="Add a clips.json next to this page to enable motion capture">Mocap</button>
     </div>
   </div>
   <div id="tools" class="ui">
     <div class="seg panel" id="viewSeg">
       <button data-opt="ghosts" aria-pressed="true">Ghosts<kbd>G</kbd></button>
       <button data-opt="guides" aria-pressed="true">Guides<kbd>F</kbd></button>
+      <button data-opt="mistakes" id="mistakesBtn" aria-pressed="false">Mistakes<kbd>M</kbd></button>
       <button data-opt="step" aria-pressed="false">Step<kbd>L</kbd></button>
       <button data-opt="split" aria-pressed="false">Split<kbd>V</kbd></button>
       <button data-opt="drill" aria-pressed="false">Drill<kbd>D</kbd></button>
@@ -93,6 +94,12 @@
     </div>
     <h4>Cues</h4>
     <ul id="cues"></ul>
+    <div id="mistakeBox" class="mistake-box" style="display: none;">
+      <h4>⚠️ Common Mistake &amp; Fix</h4>
+      <div class="mistake-flaw" id="mistakeFlaw"></div>
+      <div class="mistake-consequence" id="mistakeConsequence"></div>
+      <div class="mistake-fix" id="mistakeFix"></div>
+    </div>
     <h4>Your notes</h4>
     <textarea id="notes"
       placeholder="Your own notes or your coach's cues for this technique. Saved in this browser."></textarea>
@@ -102,7 +109,7 @@
   </div>
   <div id="hint" class="ui">
     Drag to orbit, scroll to zoom. <kbd>Space</kbd> play/pause, <kbd>[</kbd> <kbd>]</kbd> step frames,
-    <kbd>Enter</kbd> next phase, <kbd>S</kbd> speed, <kbd>C</kbd> cameras, <kbd>A</kbd> southpaw, <kbd>D</kbd> drill.
+    <kbd>Enter</kbd> next phase, <kbd>S</kbd> speed, <kbd>C</kbd> cameras, <kbd>A</kbd> southpaw, <kbd>D</kbd> drill, <kbd>M</kbd> mistakes, <kbd>T</kbd> tune.
   </div>
   <div id="keys" class="ui"></div>
   <div class="vlabel" id="vl0">Orbit</div>

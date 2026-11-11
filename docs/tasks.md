@@ -15,9 +15,9 @@
 | **2** | Data Models & Persistence | 2 | 2 | 0 | 0 |
 | **3** | Contracts & Command Interfaces | 2 | 2 | 0 | 0 |
 | **4** | Business Logic & Kinematics Services | 4 | 4 | 0 | 0 |
-| **5** | UI & 3D WebGL Integration | 6 | 6 | 0 | 0 |
+| **5** | UI & 3D WebGL Integration | 7 | 7 | 0 | 0 |
 | **6** | Hardening, Testing & Observability | 2 | 2 | 0 | 0 |
-| **Total** | | **19** | **19** | **0** | **0** |
+| **Total** | | **20** | **20** | **0** | **0** |
 
 *Note: In-code performance and resilience fixes (RF-05, RF-06, RF-08, RF-07) have been applied directly to `mma.html` and are marked completed (`[x]`). Subsequent tasks modernize these into modular architecture.*
 
@@ -274,6 +274,18 @@
 - **Acceptance condition:** Pressing 'Tune' or 'T' opens calibrator; moving sliders updates Fighter A live in the render loop; 'Copy Pose JSON' places formatted biomechanical pose data onto clipboard; GitHub Actions CI runs on push/PR.
 - **Estimated size:** M
 - **Risk / notes:** Must maintain Euler `YXZ` multiaxial rotation order and avoid runtime heap allocations in render loop.
+
+#### TASK-020: Common Biomechanical Mistakes & Form Correction Ghost Overlay
+- **Layer:** 5 (UI & 3D WebGL Integration)
+- **Status:** `[x]`
+- **Linked stories:** US-001, US-006
+- **Linked component:** Mistakes Database (`src/data/mistakes.ts`), Ghost Overlay & 3D Billboards (`src/main.ts`), HUD Inspector (`src/ui/hud.ts`, `src/style.css`)
+- **Depends on:** TASK-014, TASK-016, TASK-017
+- **Input:** Baseline striking and grappling techniques catalog.
+- **Output:** Amber warning ghost rig rendering technique flaw poses beside Fighter A with 3D billboard callouts, HUD flaw/consequence/fix breakdown, and keyboard toggle <kbd>M</kbd>.
+- **Acceptance condition:** Toggling 'Mistakes' or pressing 'M' displays amber error ghost with 3D flaw marker; card displays flaw, consequence, and corrective cue; supports Southpaw mirroring cleanly.
+- **Estimated size:** M
+- **Risk / notes:** Must respect bilateral symmetry mirroring and zero allocation in hot path.
 
 ---
 
