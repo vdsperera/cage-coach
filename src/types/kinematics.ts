@@ -147,4 +147,3 @@ export interface DrillState {
   last: number;
   pick?: number;
 }
-

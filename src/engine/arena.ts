@@ -74,7 +74,11 @@ export function buildArena(scene: THREE.Scene): ArenaComponents {
   const cageGroup = new THREE.Group();
   cageGroup.name = 'cageGroup';
 
-  const postMat = new THREE.MeshStandardMaterial({ color: 0x1a1f26, roughness: 0.5, metalness: 0.4 });
+  const postMat = new THREE.MeshStandardMaterial({
+    color: 0x1a1f26,
+    roughness: 0.5,
+    metalness: 0.4,
+  });
   const padMat = new THREE.MeshStandardMaterial({ color: 0x2b333d, roughness: 0.9 });
 
   const c = document.createElement('canvas');
@@ -157,4 +161,3 @@ export function buildArena(scene: THREE.Scene): ArenaComponents {
     lightsGroup,
   };
 }
-

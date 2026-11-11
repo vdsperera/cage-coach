@@ -31,11 +31,7 @@ const cachedReadout: TelemetryReadout = {
  * Calculates the interior angle in degrees at vertex `b` between rays `(a - b)` and `(c - b)`.
  * Completely zero-allocation using pre-allocated vectors.
  */
-export function angleAt(
-  a: THREE.Vector3,
-  b: THREE.Vector3,
-  c: THREE.Vector3
-): number {
+export function angleAt(a: THREE.Vector3, b: THREE.Vector3, c: THREE.Vector3): number {
   v1.subVectors(a, b);
   v2.subVectors(c, b);
   const dot = v1.dot(v2);
@@ -44,10 +40,7 @@ export function angleAt(
   return Math.acos(cosAngle) / D;
 }
 
-export type PointProvider = (
-  name: AnatomicalMarker,
-  out: THREE.Vector3
-) => boolean;
+export type PointProvider = (name: AnatomicalMarker, out: THREE.Vector3) => boolean;
 
 /**
  * Computes real-time biomechanical telemetry angles and elevations for a fighter.
@@ -95,10 +88,7 @@ export function calculateTelemetry(
   cachedReadout.rearElbowExtension = elbow(rear);
 
   // Hip rotation yaw
-  if (
-    pointProvider('lHipJoint', roV1) &&
-    pointProvider('rHipJoint', roV2)
-  ) {
+  if (pointProvider('lHipJoint', roV1) && pointProvider('rHipJoint', roV2)) {
     v3.subVectors(roV1, roV2);
     const yawDeg = Math.round(Math.abs(Math.atan2(-v3.z, v3.x) / D));
     cachedReadout.hipRotationYaw = `${yawDeg}°`;
@@ -111,16 +101,13 @@ export function calculateTelemetry(
     v3.subVectors(roV2, roV1);
     const len = v3.length() || 1;
     const lean = Math.round(Math.acos(Math.min(1, v3.y / len)) / D);
-    cachedReadout.torsoLean =
-      lean < 4 ? 'upright' : `${lean}° ${v3.z >= 0 ? 'fwd' : 'back'}`;
+    cachedReadout.torsoLean = lean < 4 ? 'upright' : `${lean}° ${v3.z >= 0 ? 'fwd' : 'back'}`;
   } else {
     cachedReadout.torsoLean = '–';
   }
 
   // Elevations
-  cachedReadout.headHeightMeters = pointProvider('head', roV1)
-    ? `${roV1.y.toFixed(2)} m`
-    : '–';
+  cachedReadout.headHeightMeters = pointProvider('head', roV1) ? `${roV1.y.toFixed(2)} m` : '–';
 
   const leadGloveMarker = `${lead}Glove` as AnatomicalMarker;
   cachedReadout.leadHandHeightMeters = pointProvider(leadGloveMarker, roV1)
@@ -129,4 +116,3 @@ export function calculateTelemetry(
 
   return cachedReadout;
 }
-

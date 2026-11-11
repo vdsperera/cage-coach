@@ -3,11 +3,7 @@
  * Enforces Invariants AP-004 (Defensive Text Handling) & AP-005 (Responsive Touch Viewports)
  */
 
-import type {
-  Technique,
-  TelemetryReadout,
-  AppState,
-} from '../types/kinematics';
+import type { Technique, TelemetryReadout, AppState } from '../types/kinematics';
 import type { ViewportConfig } from '../engine/camera';
 
 export interface HudEventHandlers {
@@ -17,7 +13,9 @@ export interface HudEventHandlers {
   onSetSpeed: (speed: 1 | 0.5 | 0.25) => void;
   onSetCamera: (cam: 0 | 1 | 2 | 3 | 4) => void;
   onSetSource: (src: 'clay' | 'mocap') => void;
-  onToggleOption: (key: keyof Pick<AppState, 'ghosts' | 'guides' | 'step' | 'split' | 'drill'>) => void;
+  onToggleOption: (
+    key: keyof Pick<AppState, 'ghosts' | 'guides' | 'step' | 'split' | 'drill'>
+  ) => void;
   onNextPhase: () => void;
   onPrevPhase: () => void;
   onSaveNote: (content: string) => void;
@@ -61,9 +59,7 @@ export class HudController {
     }
 
     if (phasesEl) {
-      phasesEl.innerHTML = tech.phases
-        .map(() => `<i><b></b></i>`)
-        .join('');
+      phasesEl.innerHTML = tech.phases.map(() => `<i><b></b></i>`).join('');
     }
 
     if (explainEl) {
@@ -342,11 +338,7 @@ export class HudController {
     // Drill Controls
     document.querySelectorAll('#drillSet button').forEach((btn) => {
       btn.addEventListener('click', () => {
-        const set = (btn as HTMLElement).dataset.set as
-          | 'strike'
-          | 'grapple'
-          | 'combo'
-          | 'all';
+        const set = (btn as HTMLElement).dataset.set as 'strike' | 'grapple' | 'combo' | 'all';
         if (set) {
           document
             .querySelectorAll('#drillSet button')
@@ -381,4 +373,3 @@ export class HudController {
     });
   }
 }
-

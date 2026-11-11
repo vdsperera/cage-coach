@@ -49,11 +49,7 @@ export function getRingTexture(): THREE.CanvasTexture {
   return sharedRingTex!;
 }
 
-export function getLabelTexture(
-  text: string,
-  color: string,
-  small = false
-): THREE.CanvasTexture {
+export function getLabelTexture(text: string, color: string, small = false): THREE.CanvasTexture {
   const key = `${text}|${color}|${small}`;
   let tex = labelTexCache.get(key);
   if (!tex && typeof document !== 'undefined') {
@@ -79,11 +75,7 @@ export function getLabelTexture(
   return tex!;
 }
 
-export function makeLabel(
-  text: string,
-  color: string,
-  small = false
-): THREE.Sprite {
+export function makeLabel(text: string, color: string, small = false): THREE.Sprite {
   const mat = new THREE.SpriteMaterial({
     map: getLabelTexture(text, color, small),
     depthTest: false,
@@ -187,11 +179,7 @@ export class StrikeTrail {
     this.geometry.setDrawRange(0, 0);
   }
 
-  public update(
-    tracePoint: THREE.Object3D | null,
-    t: number,
-    playing: boolean
-  ): void {
+  public update(tracePoint: THREE.Object3D | null, t: number, playing: boolean): void {
     if (tracePoint !== this.lastPoint) {
       this.count = 0;
       this.lastPoint = tracePoint;
@@ -200,11 +188,7 @@ export class StrikeTrail {
     this.line.visible = !!tracePoint;
     if (!tracePoint) return;
 
-    if (
-      playing &&
-      (t - this.lastT > 0.004 || t < this.lastT) &&
-      this.count < TRAIL_CAPACITY
-    ) {
+    if (playing && (t - this.lastT > 0.004 || t < this.lastT) && this.count < TRAIL_CAPACITY) {
       tracePoint.getWorldPosition(this.scratchPos);
       const arr = this.geometry.attributes.position.array as Float32Array;
       arr[this.count * 3] = this.scratchPos.x;

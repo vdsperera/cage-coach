@@ -24,8 +24,8 @@ export interface ViewportConfig {
 
 export const CAMERA_PRESETS: CameraOrbitParameters[] = [
   { theta: 0.62, phi: 1.22, r: 4.6 }, // 0: Front / Default Orbit
-  { theta: 1.57, phi: 1.3, r: 4.4 },  // 1: Side View
-  { theta: 0.4, phi: 0.55, r: 5.2 },  // 2: Above / Bird's Eye
+  { theta: 1.57, phi: 1.3, r: 4.4 }, // 1: Side View
+  { theta: 0.4, phi: 0.55, r: 5.2 }, // 2: Above / Bird's Eye
   { theta: 3.05, phi: 1.25, r: 4.2 }, // 3: Behind View
 ];
 
@@ -35,9 +35,9 @@ export interface FixedViewParameters {
 }
 
 export const FIXED_VIEWS: FixedViewParameters[] = [
-  { theta: Math.PI / 2, phi: 1.3 },   // 0: Side view
-  { theta: 0.001, phi: 0.06 },        // 1: Top down
-  { theta: Math.PI, phi: 1.25 },      // 2: Rear view
+  { theta: Math.PI / 2, phi: 1.3 }, // 0: Side view
+  { theta: 0.001, phi: 0.06 }, // 1: Top down
+  { theta: Math.PI, phi: 1.25 }, // 2: Rear view
 ];
 
 const DEFAULT_TARGET = new THREE.Vector3(0, 1.0, 0);
@@ -73,12 +73,7 @@ export class CameraController {
   public readonly camTargetGoal: THREE.Vector3;
 
   private readonly singleViewport: [ViewportConfig];
-  private readonly splitViewports: [
-    ViewportConfig,
-    ViewportConfig,
-    ViewportConfig,
-    ViewportConfig,
-  ];
+  private readonly splitViewports: [ViewportConfig, ViewportConfig, ViewportConfig, ViewportConfig];
 
   private lastWidth = 0;
   private lastHeight = 0;
@@ -99,9 +94,7 @@ export class CameraController {
     this.camGoal = { ...CAMERA_PRESETS[0] };
     this.camTargetGoal = DEFAULT_TARGET.clone();
 
-    this.singleViewport = [
-      { x: 0, y: 0, w: 1, h: 1, cam: this.mainCamera, label: 'Main' },
-    ];
+    this.singleViewport = [{ x: 0, y: 0, w: 1, h: 1, cam: this.mainCamera, label: 'Main' }];
 
     this.splitViewports = [
       { x: 0, y: 0, w: 1, h: 1, cam: this.mainCamera, label: 'Orbit' },
@@ -146,13 +139,7 @@ export class CameraController {
       scratchLook.set(target.x, target.y + 0.25, target.z);
       this.mainCamera.lookAt(scratchLook);
     } else {
-      placeCamera(
-        this.mainCamera,
-        this.cam.theta,
-        this.cam.phi,
-        this.cam.r,
-        this.cam.target
-      );
+      placeCamera(this.mainCamera, this.cam.theta, this.cam.phi, this.cam.r, this.cam.target);
     }
 
     // Update fixed cameras for quad-split mode
@@ -167,15 +154,9 @@ export class CameraController {
     }
   }
 
-  public getViewports(
-    width: number,
-    height: number,
-    isSplit: boolean
-  ): ViewportConfig[] {
+  public getViewports(width: number, height: number, isSplit: boolean): ViewportConfig[] {
     const sizeChanged =
-      width !== this.lastWidth ||
-      height !== this.lastHeight ||
-      isSplit !== this.lastSplit;
+      width !== this.lastWidth || height !== this.lastHeight || isSplit !== this.lastSplit;
 
     if (!isSplit) {
       const v0 = this.singleViewport[0];

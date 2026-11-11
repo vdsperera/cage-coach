@@ -53,7 +53,7 @@
 
 #### TASK-003: Configure Static Analysis with Strict ESLint and Prettier
 - **Layer:** 1 (Infrastructure)
-- **Status:** `[ ]`
+- **Status:** `[x]`
 - **Linked stories:** N/A (Quality Gate)
 - **Linked component:** Toolchain / Static Analysis (Resolves RF-02)
 - **Depends on:** TASK-002

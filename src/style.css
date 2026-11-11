@@ -79,13 +79,17 @@ button {
 
 #head h1 {
   margin: 0;
-  font: 700 24px/1 'Barlow Condensed', sans-serif;
+  font:
+    700 24px/1 'Barlow Condensed',
+    sans-serif;
   letter-spacing: 0.01em;
 }
 
 #head h1 small {
   display: block;
-  font: 500 12px/1.3 Barlow, sans-serif;
+  font:
+    500 12px/1.3 Barlow,
+    sans-serif;
   color: var(--ink-2);
   margin-top: 3px;
 }
@@ -102,7 +106,9 @@ button {
   color: var(--ink-2);
   padding: 6px 11px;
   border-radius: 4px;
-  font: 500 13px Barlow, sans-serif;
+  font:
+    500 13px Barlow,
+    sans-serif;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -115,7 +121,9 @@ button {
 .seg button kbd {
   color: var(--ink-3);
   margin-left: 6px;
-  font: 500 11px Barlow, sans-serif;
+  font:
+    500 11px Barlow,
+    sans-serif;
 }
 
 .seg button:disabled {
@@ -152,14 +160,18 @@ body.split #card {
 }
 
 #card .name {
-  font: 700 30px/1 'Barlow Condensed', sans-serif;
+  font:
+    700 30px/1 'Barlow Condensed',
+    sans-serif;
   display: flex;
   justify-content: space-between;
   align-items: baseline;
 }
 
 #card .name kbd {
-  font: 500 13px Barlow, sans-serif;
+  font:
+    500 13px Barlow,
+    sans-serif;
   color: var(--ink-3);
 }
 
@@ -221,7 +233,9 @@ body.split #card {
   color: var(--ink);
   border-radius: 4px;
   padding: 7px 8px;
-  font: 500 13px Barlow, sans-serif;
+  font:
+    500 13px Barlow,
+    sans-serif;
   cursor: pointer;
 }
 
@@ -254,7 +268,9 @@ body.split #card {
 
 h4 {
   margin: 10px 0 4px;
-  font: 600 11px Barlow, sans-serif;
+  font:
+    600 11px Barlow,
+    sans-serif;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-3);
@@ -281,7 +297,9 @@ h4 {
   border: 1px solid var(--line);
   border-radius: 4px;
   padding: 8px;
-  font: 400 13px Barlow, sans-serif;
+  font:
+    400 13px Barlow,
+    sans-serif;
 }
 
 #notesRow {
@@ -339,7 +357,9 @@ h4 {
 .row > label {
   flex: 0 0 84px;
   color: var(--ink-3);
-  font: 500 12px Barlow, sans-serif;
+  font:
+    500 12px Barlow,
+    sans-serif;
 }
 
 .key {
@@ -368,7 +388,9 @@ h4 {
   height: 26px;
   border-radius: 4px;
   background: var(--key);
-  font: 700 14px 'Barlow Condensed', sans-serif;
+  font:
+    700 14px 'Barlow Condensed',
+    sans-serif;
   color: var(--ink);
 }
 
@@ -382,7 +404,9 @@ h4 {
 }
 
 .key span {
-  font: 500 13px/1.1 Barlow, sans-serif;
+  font:
+    500 13px/1.1 Barlow,
+    sans-serif;
   text-align: left;
 }
 
@@ -416,7 +440,9 @@ body.split #hint {
   z-index: 2;
   display: none;
   color: var(--ink-2);
-  font: 600 12px Barlow, sans-serif;
+  font:
+    600 12px Barlow,
+    sans-serif;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 4px;
@@ -470,7 +496,9 @@ body.split .vlabel {
 }
 
 #callout .big {
-  font: 700 clamp(40px, 8vw, 96px)/1 'Barlow Condensed', sans-serif;
+  font:
+    700 clamp(40px, 8vw, 96px)/1 'Barlow Condensed',
+    sans-serif;
   color: var(--amber);
   text-shadow: 0 2px 24px rgba(0, 0, 0, 0.6);
 }
@@ -490,7 +518,9 @@ body.split .vlabel {
   padding: 0 6px;
   border-radius: 4px;
   background: var(--key);
-  font: 700 15px 'Barlow Condensed', sans-serif;
+  font:
+    700 15px 'Barlow Condensed',
+    sans-serif;
   margin-right: 6px;
 }
 
@@ -542,4 +572,3 @@ body.split .vlabel {
     transform: none;
   }
 }
-

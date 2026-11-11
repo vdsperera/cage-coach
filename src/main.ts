@@ -22,12 +22,7 @@ export * from './storage/notes';
 export * from './events/keyboard';
 export * from './ui/hud';
 
-import type {
-  AppState,
-  Technique,
-  JointIdentifier,
-  AnatomicalMarker,
-} from './types/kinematics';
+import type { AppState, Technique, JointIdentifier, AnatomicalMarker } from './types/kinematics';
 import { BASE_TECHNIQUES, COMBO_DEFS } from './data/techniques';
 import { compileAllTechniques } from './engine/combos';
 import { D, poseAt, mirrorPose, sideName } from './engine/kinematics';
@@ -57,10 +52,7 @@ import { attachKeyboardRouter } from './events/keyboard';
 import { HudController } from './ui/hud';
 
 // 1. Compile Techniques Catalog
-export const ALL_TECHNIQUES: Technique[] = compileAllTechniques(
-  BASE_TECHNIQUES,
-  COMBO_DEFS
-);
+export const ALL_TECHNIQUES: Technique[] = compileAllTechniques(BASE_TECHNIQUES, COMBO_DEFS);
 
 // 2. Application Reactive State
 const state: AppState = {
@@ -124,10 +116,7 @@ const ghostRigs: FighterRig[] = Array.from({ length: GHOST_COUNT }, () => {
 
 // 6. Camera & Viewport Controller
 const cameraController = new CameraController();
-cameraController.attachPointerEvents(
-  renderer.domElement,
-  () => state.cam !== 4
-);
+cameraController.attachPointerEvents(renderer.domElement, () => state.cam !== 4);
 
 // 7. Visual Guidance & Annotations
 const markGroup = new THREE.Group();
@@ -166,19 +155,14 @@ const drillCoach = new DrillCoach(ALL_TECHNIQUES, {
 // 9. Pure Helpers
 const getActiveTechnique = (): Technique => ALL_TECHNIQUES[state.tech];
 
-const isPartnerShown = (): boolean =>
-  state.mode === 'spar' || !!getActiveTechnique().needsPartner;
+const isPartnerShown = (): boolean => state.mode === 'spar' || !!getActiveTechnique().needsPartner;
 
 const poseOf = (frames: Technique['a'], t: number) => {
   const base = poseAt(frames, t);
   return state.southpaw ? mirrorPose(base) : base;
 };
 
-const getPointFor = (
-  who: 'A' | 'B',
-  name: AnatomicalMarker,
-  out: THREE.Vector3
-): boolean => {
+const getPointFor = (who: 'A' | 'B', name: AnatomicalMarker, out: THREE.Vector3): boolean => {
   const localized = sideName(name, state.southpaw) as AnatomicalMarker;
   const rig = who === 'A' ? fighterA : fighterB;
   if (who === 'B' && !fighterB.holder.visible) return false;
@@ -298,11 +282,7 @@ function buildGuides(): void {
       for (let i = 0; i <= n; i++) {
         const a = yaw0 + ((yaw1 - yaw0) * i) / n;
         pts.push(
-          new THREE.Vector3(
-            centre.x + r * Math.sin(a),
-            centre.y + 0.05,
-            centre.z + r * Math.cos(a)
-          )
+          new THREE.Vector3(centre.x + r * Math.sin(a), centre.y + 0.05, centre.z + r * Math.cos(a))
         );
       }
       const curve = new THREE.CatmullRomCurve3(pts);
@@ -312,17 +292,11 @@ function buildGuides(): void {
         transparent: true,
         opacity: 0.95,
       });
-      const tube = new THREE.Mesh(
-        new THREE.TubeGeometry(curve, 24, 0.012, 8, false),
-        amber
-      );
+      const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 24, 0.012, 8, false), amber);
       tube.renderOrder = 18;
       guideGroup.add(tube);
 
-      const cone = new THREE.Mesh(
-        new THREE.ConeGeometry(0.045, 0.11, 10),
-        amber
-      );
+      const cone = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.11, 10), amber);
       cone.renderOrder = 18;
       const end = pts[n];
       const tan = curve.getTangent(1).normalize();
@@ -330,11 +304,7 @@ function buildGuides(): void {
       cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tan);
       guideGroup.add(cone);
 
-      const lab = makeLabel(
-        `Hips turn ${Math.round(Math.abs(yaw1 - yaw0) / D)}°`,
-        '#FFC53D',
-        true
-      );
+      const lab = makeLabel(`Hips turn ${Math.round(Math.abs(yaw1 - yaw0) / D)}°`, '#FFC53D', true);
       lab.position.set(centre.x, centre.y + 0.32, centre.z);
       guideGroup.add(lab);
     }
@@ -354,12 +324,7 @@ function setTechnique(index: number): void {
   strikeTrail.reset();
 
   const tk = getActiveTechnique();
-  hud.renderCard(
-    tk,
-    state.mode === 'spar',
-    state.southpaw,
-    notesManager.getNote(tk.key)
-  );
+  hud.renderCard(tk, state.mode === 'spar', state.southpaw, notesManager.getNote(tk.key));
   hud.renderKeys(state.tech);
   buildContactMarks();
   buildGuides();
@@ -564,11 +529,7 @@ attachKeyboardRouter({
 // 14. Window Resize Handler
 window.addEventListener('resize', () => {
   renderer.setSize(window.innerWidth, window.innerHeight);
-  const vps = cameraController.getViewports(
-    window.innerWidth,
-    window.innerHeight,
-    state.split
-  );
+  const vps = cameraController.getViewports(window.innerWidth, window.innerHeight, state.split);
   hud.updateVLabels(vps, state.split);
 });
 
@@ -626,9 +587,7 @@ function frame(now: number): void {
   }
 
   // Update Dynamic Strike Trail
-  const traceMarker = tk.trace
-    ? (sideName(tk.trace, state.southpaw) as AnatomicalMarker)
-    : null;
+  const traceMarker = tk.trace ? (sideName(tk.trace, state.southpaw) as AnatomicalMarker) : null;
   const tracePoint = traceMarker ? fighterA.points[traceMarker] || null : null;
   strikeTrail.update(tracePoint, state.t, state.playing);
 
@@ -667,13 +626,7 @@ function frame(now: number): void {
   hud.updatePhase(tk, state.t, state.playing);
 
   // Scissor Viewport Rendering
-  cameraController.render(
-    renderer,
-    scene,
-    window.innerWidth,
-    window.innerHeight,
-    state.split
-  );
+  cameraController.render(renderer, scene, window.innerWidth, window.innerHeight, state.split);
 
   requestAnimationFrame(frame);
 }

@@ -44,10 +44,7 @@ export class NotesManager {
   private commitToStorage(): boolean {
     try {
       if (typeof localStorage === 'undefined') return false;
-      localStorage.setItem(
-        NOTES_STORAGE_KEY,
-        JSON.stringify(this.inMemoryNotes)
-      );
+      localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(this.inMemoryNotes));
       return true;
     } catch (err) {
       console.warn('Could not save notes to localStorage', err);
@@ -89,9 +86,7 @@ export class NotesManager {
   /**
    * Formats notes with technique display names and returns a JSON Blob.
    */
-  public createExportBlob(
-    techniqueNameMap: Record<string, string>
-  ): Blob {
+  public createExportBlob(techniqueNameMap: Record<string, string>): Blob {
     const formatted: Record<string, string> = {};
     for (const [key, content] of Object.entries(this.inMemoryNotes)) {
       const name = techniqueNameMap[key] || '';
@@ -121,4 +116,3 @@ export class NotesManager {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 }
-

@@ -310,4 +310,3 @@ export function apply(f: FighterRig, p: Pose): void {
     f.root.position.set(p.pos[0], 0.97 + p.pos[1], p.pos[2]);
   }
 }
-

@@ -203,10 +203,7 @@ describe('Pose Interpolation Engine (poseAt)', () => {
   });
 
   it('fills missing partial pose joints with STANCE defaults', () => {
-    const frames: Keyframe[] = [
-      { t: 0 },
-      { t: 1, p: { head: [15, 0, 0] } },
-    ];
+    const frames: Keyframe[] = [{ t: 0 }, { t: 1, p: { head: [15, 0, 0] } }];
 
     const pose = poseAt(frames, 0);
     expect(pose.lSh).toEqual(STANCE.lSh);

@@ -55,18 +55,9 @@ export class MocapManager {
   public error: string | null = null;
   public clips: Record<string, MocapClipEntry> = {};
   public characters: [THREE.Group | null, THREE.Group | null] = [null, null];
-  public mixers: [THREE.AnimationMixer | null, THREE.AnimationMixer | null] = [
-    null,
-    null,
-  ];
-  public actions: [THREE.AnimationAction | null, THREE.AnimationAction | null] = [
-    null,
-    null,
-  ];
-  public bones: [
-    Record<string, THREE.Object3D>,
-    Record<string, THREE.Object3D>,
-  ] = [{}, {}];
+  public mixers: [THREE.AnimationMixer | null, THREE.AnimationMixer | null] = [null, null];
+  public actions: [THREE.AnimationAction | null, THREE.AnimationAction | null] = [null, null];
+  public bones: [Record<string, THREE.Object3D>, Record<string, THREE.Object3D>] = [{}, {}];
 
   /**
    * Initializes mocap by checking for clips.json.
@@ -97,19 +88,12 @@ export class MocapManager {
     return this.ready;
   }
 
-  public getClipFor(
-    key: string,
-    currentSource: string
-  ): MocapClipEntry | null {
+  public getClipFor(key: string, currentSource: string): MocapClipEntry | null {
     if (currentSource !== 'mocap' || !this.ready) return null;
     return this.clips[key.toUpperCase()] || null;
   }
 
-  public driveMocap(
-    index: 0 | 1,
-    loaded: LoadedClip,
-    normalizedT: number
-  ): void {
+  public driveMocap(index: 0 | 1, loaded: LoadedClip, normalizedT: number): void {
     const mixer = this.mixers[index];
     const clip = loaded.clip;
     if (!mixer || !clip) return;
@@ -130,4 +114,3 @@ export class MocapManager {
     mixer.update(0);
   }
 }
-
