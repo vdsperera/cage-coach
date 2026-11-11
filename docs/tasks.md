@@ -14,10 +14,10 @@
 | **1** | Infrastructure & Tooling | 3 | 2 | 0 | 1 |
 | **2** | Data Models & Persistence | 2 | 2 | 0 | 0 |
 | **3** | Contracts & Command Interfaces | 2 | 0 | 0 | 2 |
-| **4** | Business Logic & Kinematics Services | 4 | 2 | 0 | 2 |
+| **4** | Business Logic & Kinematics Services | 4 | 3 | 0 | 1 |
 | **5** | UI & 3D WebGL Integration | 5 | 2 | 0 | 3 |
 | **6** | Hardening, Testing & Observability | 2 | 0 | 0 | 2 |
-| **Total** | | **18** | **8** | **0** | **10** |
+| **Total** | | **18** | **9** | **0** | **9** |
 
 *Note: In-code performance and resilience fixes (RF-05, RF-06, RF-08, RF-07) have been applied directly to `mma.html` and are marked completed (`[x]`). Subsequent tasks modernize these into modular architecture.*
 
@@ -137,7 +137,7 @@
 
 #### TASK-009: Parametric Keyframe Interpolation with Southpaw Bilateral Symmetry Mirroring
 - **Layer:** 4 (Business logic)
-- **Status:** `[ ]`
+- **Status:** `[x]`
 - **Linked stories:** US-002, US-003
 - **Linked component:** Animation & Pose Interpolation Engine
 - **Depends on:** TASK-004
