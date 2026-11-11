@@ -4,6 +4,7 @@ export * from './engine/kinematics';
 export * from './data/techniques';
 export * from './engine/combos';
 export * from './drill/coach';
+export * from './engine/arena';
 
 import { BASE_TECHNIQUES, COMBO_DEFS } from './data/techniques';
 import { compileAllTechniques } from './engine/combos';

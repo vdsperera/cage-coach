@@ -177,7 +177,7 @@
 
 #### TASK-012: Octagonal Combat Arena and Lighting Subsystem
 - **Layer:** 5 (UI & 3D WebGL)
-- **Status:** `[ ]`
+- **Status:** `[x]`
 - **Linked stories:** US-001
 - **Linked component:** Scene & Arena Manager (FR-01)
 - **Depends on:** TASK-002
