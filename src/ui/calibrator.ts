@@ -26,6 +26,8 @@ export const JOINT_DISPLAY_NAMES: Record<JointIdentifier, string> = {
 
 export interface PoseCalibratorCallbacks {
   onPoseChanged: (pose: Pose) => void;
+  onSaveCalibration?: (pose: Pose) => void;
+  onResetCalibration?: () => void;
   onClose: () => void;
 }
 
@@ -126,6 +128,10 @@ export class PoseCalibrator {
       </div>
 
       <div class="cal-actions">
+        <button id="calSaveBtn" class="btn primary">💾 Save to Browser</button>
+        <button id="calResetOverrideBtn" class="btn">↺ Reset Default</button>
+      </div>
+      <div class="cal-actions" style="margin-top: 6px;">
         <button id="calCopyBtn" class="btn">📋 Copy Pose JSON</button>
         <button id="calResetJointBtn" class="btn">↺ Reset Joint</button>
       </div>
@@ -148,8 +154,22 @@ export class PoseCalibrator {
     const sliderPosY = this.panel.querySelector('#calSliderPosY') as HTMLInputElement | null;
     const sliderPosZ = this.panel.querySelector('#calSliderPosZ') as HTMLInputElement | null;
     const closeBtn = this.panel.querySelector('#calCloseBtn');
+    const saveBtn = this.panel.querySelector('#calSaveBtn');
+    const resetOverrideBtn = this.panel.querySelector('#calResetOverrideBtn');
     const copyBtn = this.panel.querySelector('#calCopyBtn');
     const resetJointBtn = this.panel.querySelector('#calResetJointBtn');
+
+    saveBtn?.addEventListener('click', () => {
+      if (this.currentPose) {
+        this.callbacks.onSaveCalibration?.(this.currentPose);
+        this.showToast('✅ Calibration saved to browser storage!');
+      }
+    });
+
+    resetOverrideBtn?.addEventListener('click', () => {
+      this.callbacks.onResetCalibration?.();
+      this.showToast('↺ Reverted to default technique keyframe!');
+    });
 
     jointSelect?.addEventListener('change', () => {
       this.selectedJoint = jointSelect.value as JointIdentifier;

@@ -42,3 +42,4 @@ Previously, athletes had to rely on separate timer apps or gym timers that were 
 - **Unit Tests (`tests/unit/roundTimer.test.ts`)**: 7 tests covering tick countdowns, 10s warning triggers, round-to-rest intervals, and workout completion (44/44 total project tests passing).
 - **Static Analysis**: `npm run lint` passes across all 24 modules with zero warnings or errors.
 - **Production Build**: `npm run build` compiles in 3.09s into `dist/`.
+

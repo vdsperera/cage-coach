@@ -12,12 +12,12 @@
 | Layer | Layer Name | Total Tasks | Completed | In-Progress | Pending |
 | :---: | :--- | :---: | :---: | :---: | :---: |
 | **1** | Infrastructure & Tooling | 3 | 3 | 0 | 0 |
-| **2** | Data Models & Persistence | 2 | 2 | 0 | 0 |
+| **2** | Data Models & Persistence | 3 | 3 | 0 | 0 |
 | **3** | Contracts & Command Interfaces | 2 | 2 | 0 | 0 |
 | **4** | Business Logic & Kinematics Services | 5 | 5 | 0 | 0 |
 | **5** | UI & 3D WebGL Integration | 8 | 8 | 0 | 0 |
 | **6** | Hardening, Testing & Observability | 2 | 2 | 0 | 0 |
-| **Total** | | **22** | **22** | **0** | **0** |
+| **Total** | | **23** | **23** | **0** | **0** |
 
 *Note: In-code performance and resilience fixes (RF-05, RF-06, RF-08, RF-07) have been applied directly to `mma.html` and are marked completed (`[x]`). Subsequent tasks modernize these into modular architecture.*
 
@@ -310,6 +310,18 @@
 - **Acceptance condition:** Timer ticks countdown accurately; plays 10s clapper at 10 seconds remaining; transitions between rounds and rest intervals with round bells; pauses drill coach during rest breaks.
 - **Estimated size:** M
 - **Risk / notes:** Must handle browser audio context auto-resume cleanly.
+
+#### TASK-023: In-Browser Pose Calibration Persistence & Technique Overrides
+- **Layer:** 2 (Data Models & Persistence)
+- **Status:** `[x]`
+- **Linked stories:** US-001, US-004
+- **Linked component:** Pose Calibration Storage (`src/storage/calibrations.ts`), Calibrator UI (`src/ui/calibrator.ts`), Playback Engine (`src/main.ts`)
+- **Depends on:** TASK-019, TASK-005
+- **Input:** Live user joint angle and position offsets tuned in 3D Pose Calibrator.
+- **Output:** "Save to Browser" and "Reset Default" action buttons in Pose Calibrator, persisting tuned poses to `localStorage` (`cagecraft_calibrated_poses_v1`) and automatically applying custom technique angles to Fighter A during 3D playback.
+- **Acceptance condition:** Clicking "Save to Browser" persists override across reloads; Fighter A animates using calibrated angles at impact; "Reset Default" reverts cleanly to factory angles.
+- **Estimated size:** M
+- **Risk / notes:** Must blend cleanly into continuous interpolation without disrupting adjacent keyframes.
 
 ---
 

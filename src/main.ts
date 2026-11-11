@@ -26,6 +26,7 @@ export * from './data/mistakes';
 export * from './storage/combos';
 export * from './ui/comboBuilder';
 export * from './drill/timer';
+export * from './storage/calibrations';
 
 import type { AppState, Technique, JointIdentifier, AnatomicalMarker, Pose } from './types/kinematics';
 import { BASE_TECHNIQUES, COMBO_DEFS } from './data/techniques';
@@ -34,6 +35,7 @@ import { compileAllTechniques, buildCombo } from './engine/combos';
 import { CustomComboStorage } from './storage/combos';
 import { ComboBuilderModal } from './ui/comboBuilder';
 import { RoundTimer } from './drill/timer';
+import { PoseCalibrationStorage } from './storage/calibrations';
 import { D, poseAt, mirrorPose, sideName } from './engine/kinematics';
 import { buildArena } from './engine/arena';
 import {
@@ -203,6 +205,17 @@ const poseCalibrator = new PoseCalibrator({
     tunedPose = p;
     apply(fighterA, p);
   },
+  onSaveCalibration: (p) => {
+    const tk = getActiveTechnique();
+    PoseCalibrationStorage.saveOverride(tk.key, p);
+    buildGuides();
+  },
+  onResetCalibration: () => {
+    const tk = getActiveTechnique();
+    PoseCalibrationStorage.resetOverride(tk.key);
+    tunedPose = null;
+    setTechnique(state.tech);
+  },
   onClose: () => {
     tunedPose = null;
     hud.updateButtons(state, false);
@@ -232,7 +245,21 @@ const isPartnerShown = (): boolean => state.mode === 'spar' || !!getActiveTechni
 
 const poseOf = (frames: Technique['a'], t: number) => {
   const base = poseAt(frames, t);
-  return state.southpaw ? mirrorPose(base) : base;
+  const tk = getActiveTechnique();
+  const override = PoseCalibrationStorage.getOverride(tk?.key || '');
+
+  let effective = base;
+  if (override && Math.abs(t - tk.peak) < 0.12) {
+    effective = {
+      ...base,
+      ...override,
+      root: override.root ? [...override.root] : [...base.root],
+      spine: override.spine ? [...override.spine] : [...base.spine],
+      head: override.head ? [...override.head] : [...base.head],
+    };
+  }
+
+  return state.southpaw ? mirrorPose(effective) : effective;
 };
 
 const getPointFor = (who: 'A' | 'B', name: AnatomicalMarker, out: THREE.Vector3): boolean => {
