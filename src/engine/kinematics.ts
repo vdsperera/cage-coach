@@ -142,9 +142,9 @@ export function mirrorPose(p: Pose): Pose {
   for (const j of JOINTS) {
     const swapKey = SWAP[j] || j;
     const s = p[swapKey];
-    o[j] = [s[0], -s[1], -s[2]];
+    o[j] = [s[0], -s[1] || 0, -s[2] || 0];
   }
-  o.pos = [-p.pos[0], p.pos[1], p.pos[2]];
+  o.pos = [-p.pos[0] || 0, p.pos[1], p.pos[2]];
   return o;
 }
 

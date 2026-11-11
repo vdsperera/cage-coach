@@ -241,7 +241,7 @@
 
 #### TASK-017: Setup Vitest Runner and Implement Kinematic Unit Tests
 - **Layer:** 6 (Hardening & testing)
-- **Status:** `[ ]`
+- **Status:** `[x]`
 - **Linked stories:** US-002, US-004
 - **Linked component:** Automated Test Suite (Resolves RF-03)
 - **Depends on:** TASK-002, TASK-009, TASK-008
