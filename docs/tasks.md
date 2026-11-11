@@ -213,7 +213,7 @@
 
 #### TASK-015: Multi-Camera Orbit Controller and Quad-Split Scissor Viewports
 - **Layer:** 5 (UI & 3D WebGL)
-- **Status:** `[ ]`
+- **Status:** `[x]`
 - **Linked stories:** US-001, US-008
 - **Linked component:** Camera & Viewport Controller (FR-09)
 - **Depends on:** TASK-012
