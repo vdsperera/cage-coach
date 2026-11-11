@@ -104,10 +104,10 @@ button {
   border: 0;
   background: transparent;
   color: var(--ink-2);
-  padding: 6px 11px;
+  padding: 5px 9px;
   border-radius: 4px;
   font:
-    500 13px Barlow,
+    500 12px Barlow,
     sans-serif;
   cursor: pointer;
   white-space: nowrap;
@@ -120,10 +120,13 @@ button {
 
 .seg button kbd {
   color: var(--ink-3);
-  margin-left: 6px;
+  margin-left: 4px;
   font:
-    500 11px Barlow,
+    500 10px Barlow,
     sans-serif;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 3px;
+  border-radius: 2px;
 }
 
 .seg button:disabled {
@@ -135,23 +138,33 @@ button {
   top: 14px;
   right: 14px;
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
   justify-content: flex-end;
-  max-width: 640px;
+  align-items: center;
+  max-width: calc(100vw - 360px);
+  z-index: 30;
+}
+
+#tools .seg {
+  padding: 2px;
+  gap: 2px;
 }
 
 #tools .seg button {
-  padding: 6px 9px;
+  padding: 5px 8px;
+  font-size: 12px;
 }
 
 #card {
   right: 14px;
-  top: 72px;
-  width: 300px;
+  top: 96px;
+  width: 310px;
   padding: 16px 18px 14px;
-  max-height: calc(100vh - 250px);
-  overflow: auto;
+  max-height: calc(100vh - 280px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 20;
 }
 
 body.split #card {
