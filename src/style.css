@@ -804,7 +804,9 @@ body.split #calibratorPanel {
 }
 
 .timer-digits {
-  font: 700 24px/1 'Barlow Condensed', sans-serif;
+  font:
+    700 24px/1 'Barlow Condensed',
+    sans-serif;
   letter-spacing: 0.04em;
   font-variant-numeric: tabular-nums;
   color: var(--ink);
@@ -901,7 +903,9 @@ body.split #calibratorPanel {
   color: var(--ink);
   border: 1px solid var(--line);
   border-radius: 4px;
-  font: 500 13px Barlow, sans-serif;
+  font:
+    500 13px Barlow,
+    sans-serif;
   outline: none;
 }
 
@@ -985,7 +989,9 @@ body.split #calibratorPanel {
   color: var(--ink);
   border: 1px solid var(--line);
   border-radius: 4px;
-  font: 500 12px Barlow, sans-serif;
+  font:
+    500 12px Barlow,
+    sans-serif;
   outline: none;
 }
 
@@ -1003,4 +1009,3 @@ body.split #calibratorPanel {
   border-color: var(--red);
   font-weight: 600;
 }
-

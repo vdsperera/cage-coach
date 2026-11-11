@@ -170,4 +170,3 @@ export class ComboBuilderModal {
     this.close();
   }
 }
-

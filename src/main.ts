@@ -28,7 +28,13 @@ export * from './ui/comboBuilder';
 export * from './drill/timer';
 export * from './storage/calibrations';
 
-import type { AppState, Technique, JointIdentifier, AnatomicalMarker, Pose } from './types/kinematics';
+import type {
+  AppState,
+  Technique,
+  JointIdentifier,
+  AnatomicalMarker,
+  Pose,
+} from './types/kinematics';
 import { BASE_TECHNIQUES, COMBO_DEFS } from './data/techniques';
 import { TECHNIQUE_MISTAKES } from './data/mistakes';
 import { compileAllTechniques, buildCombo } from './engine/combos';

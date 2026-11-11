@@ -18,10 +18,7 @@ describe('Combat Round Timer Subsystem', () => {
 
   it('counts down correctly per tick', () => {
     const onTick = vi.fn();
-    const timer = new RoundTimer(
-      { roundDurationSec: 180 },
-      { onTick, onPhaseChange: vi.fn() }
-    );
+    const timer = new RoundTimer({ roundDurationSec: 180 }, { onTick, onPhaseChange: vi.fn() });
 
     timer.start();
     expect(timer.isRunning).toBe(true);
@@ -34,10 +31,7 @@ describe('Combat Round Timer Subsystem', () => {
 
   it('transitions to warning phase at 10 seconds remaining', () => {
     const onPhaseChange = vi.fn();
-    const timer = new RoundTimer(
-      { roundDurationSec: 12 },
-      { onTick: vi.fn(), onPhaseChange }
-    );
+    const timer = new RoundTimer({ roundDurationSec: 12 }, { onTick: vi.fn(), onPhaseChange });
 
     timer.start();
     timer.tick(); // 11s
@@ -87,9 +81,7 @@ describe('Combat Round Timer Subsystem', () => {
   });
 
   it('resets to idle after final round concludes', () => {
-    const timer = new RoundTimer(
-      { roundDurationSec: 1, restDurationSec: 1, totalRounds: 1 }
-    );
+    const timer = new RoundTimer({ roundDurationSec: 1, restDurationSec: 1, totalRounds: 1 });
 
     timer.start();
     timer.tick(); // 0s
@@ -100,4 +92,3 @@ describe('Combat Round Timer Subsystem', () => {
     expect(timer.isRunning).toBe(false);
   });
 });
-
