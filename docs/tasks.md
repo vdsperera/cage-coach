@@ -14,10 +14,10 @@
 | **1** | Infrastructure & Tooling | 3 | 2 | 0 | 1 |
 | **2** | Data Models & Persistence | 2 | 2 | 0 | 0 |
 | **3** | Contracts & Command Interfaces | 2 | 0 | 0 | 2 |
-| **4** | Business Logic & Kinematics Services | 4 | 3 | 0 | 1 |
+| **4** | Business Logic & Kinematics Services | 4 | 4 | 0 | 0 |
 | **5** | UI & 3D WebGL Integration | 5 | 2 | 0 | 3 |
 | **6** | Hardening, Testing & Observability | 2 | 0 | 0 | 2 |
-| **Total** | | **18** | **9** | **0** | **9** |
+| **Total** | | **18** | **10** | **0** | **8** |
 
 *Note: In-code performance and resilience fixes (RF-05, RF-06, RF-08, RF-07) have been applied directly to `mma.html` and are marked completed (`[x]`). Subsequent tasks modernize these into modular architecture.*
 
@@ -149,7 +149,7 @@
 
 #### TASK-010: Sequential Combination Timeline Compiler Service
 - **Layer:** 4 (Business logic)
-- **Status:** `[ ]`
+- **Status:** `[x]`
 - **Linked stories:** US-001
 - **Linked component:** Combination Compiler (`buildCombo`)
 - **Depends on:** TASK-009
