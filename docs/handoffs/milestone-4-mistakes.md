@@ -51,3 +51,4 @@ Previously, Cage Coach only displayed the ideal execution. Athletes and coaches 
 - **Unit Tests (`tests/unit/mistakes.test.ts`)**: 4 comprehensive tests verifying technique coverage, finite angle bounds `[-180, 180]`, technique enrichment, and southpaw mirroring (all 31/31 tests passing).
 - **Static Analysis**: `npm run lint` passes across all 21 modules with zero errors.
 - **Production Build**: `npm run build` compiles in 2.81s into clean production assets in `dist/`.
+

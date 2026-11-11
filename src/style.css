@@ -737,3 +737,185 @@ body.split #calibratorPanel {
   font-size: 12px;
   text-align: center;
 }
+
+/* ==========================================================================
+   Custom Combination Builder Modal
+   ========================================================================== */
+.combo-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 17, 21, 0.75);
+  backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.combo-modal.on {
+  display: flex;
+}
+
+.combo-modal-content {
+  width: 100%;
+  max-width: 440px;
+  padding: 18px 20px;
+  border-radius: 8px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.combo-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.combo-modal-header h3 {
+  margin: 0;
+  font-size: 15px;
+  color: var(--ink);
+  letter-spacing: 0.02em;
+}
+
+.combo-modal-close {
+  background: transparent;
+  border: none;
+  color: var(--ink-2);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.combo-modal-body {
+  overflow-y: auto;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.combo-label {
+  display: flex;
+  flex-direction: column;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-3);
+  font-weight: 600;
+  gap: 5px;
+}
+
+.combo-label input[type='text'] {
+  padding: 7px 10px;
+  background: var(--key);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font: 500 13px Barlow, sans-serif;
+  outline: none;
+}
+
+.combo-label input[type='text']:focus {
+  border-color: var(--blue);
+}
+
+.combo-steps-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.combo-steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 80px;
+  max-height: 200px;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.combo-empty {
+  color: var(--ink-3);
+  font-size: 12px;
+  font-style: italic;
+  text-align: center;
+  margin: auto 0;
+}
+
+.combo-step-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--key);
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  font-size: 13px;
+}
+
+.step-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-3);
+  width: 18px;
+}
+
+.step-name {
+  flex: 1;
+  color: var(--ink);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.step-remove-btn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.combo-add-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.combo-select {
+  flex: 1;
+  padding: 6px 8px;
+  background: var(--key);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font: 500 12px Barlow, sans-serif;
+  outline: none;
+}
+
+.combo-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.combo-modal-footer .btn.primary {
+  background: var(--red);
+  color: #ffffff;
+  border-color: var(--red);
+  font-weight: 600;
+}
+

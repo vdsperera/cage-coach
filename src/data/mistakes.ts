@@ -156,3 +156,4 @@ export const TECHNIQUE_MISTAKES: Record<string, TechniqueMistake> = {
     },
   },
 };
+

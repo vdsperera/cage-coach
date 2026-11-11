@@ -17,6 +17,7 @@ export interface HudEventHandlers {
     key: keyof Pick<AppState, 'ghosts' | 'guides' | 'step' | 'split' | 'drill' | 'mistakes'>
   ) => void;
   onToggleTune: () => void;
+  onToggleComboBuilder: () => void;
   onNextPhase: () => void;
   onPrevPhase: () => void;
   onSaveNote: (content: string) => void;
@@ -330,6 +331,10 @@ export class HudController {
         const opt = (btn as HTMLElement).dataset.opt;
         if (opt === 'tune') {
           this.handlers.onToggleTune();
+          return;
+        }
+        if (opt === 'builder') {
+          this.handlers.onToggleComboBuilder();
           return;
         }
         if (opt) {

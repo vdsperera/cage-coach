@@ -13,7 +13,13 @@ import type {
 } from '../types/kinematics';
 import { fullPose, poseAt } from './kinematics';
 
-export function buildCombo(def: ComboDefinition, byKey: Record<string, Technique>): Technique {
+export function buildCombo(
+  def: ComboDefinition,
+  byKeyOrArray: Record<string, Technique> | Technique[]
+): Technique {
+  const byKey: Record<string, Technique> = Array.isArray(byKeyOrArray)
+    ? Object.fromEntries(byKeyOrArray.map((t) => [t.key, t]))
+    : byKeyOrArray;
   const steps = def.steps.map((k) => byKey[k]);
   const trims = steps.map((tk) => (tk.phases.length > 1 ? tk.phases[tk.phases.length - 2][0] : 1));
   const shares = steps.map((tk, i) => tk.dur * trims[i]);

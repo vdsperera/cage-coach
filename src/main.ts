@@ -23,11 +23,15 @@ export * from './events/keyboard';
 export * from './ui/hud';
 export * from './ui/calibrator';
 export * from './data/mistakes';
+export * from './storage/combos';
+export * from './ui/comboBuilder';
 
 import type { AppState, Technique, JointIdentifier, AnatomicalMarker, Pose } from './types/kinematics';
 import { BASE_TECHNIQUES, COMBO_DEFS } from './data/techniques';
 import { TECHNIQUE_MISTAKES } from './data/mistakes';
-import { compileAllTechniques } from './engine/combos';
+import { compileAllTechniques, buildCombo } from './engine/combos';
+import { CustomComboStorage } from './storage/combos';
+import { ComboBuilderModal } from './ui/comboBuilder';
 import { D, poseAt, mirrorPose, sideName } from './engine/kinematics';
 import { buildArena } from './engine/arena';
 import {
@@ -56,9 +60,12 @@ import { HudController } from './ui/hud';
 import { PoseCalibrator } from './ui/calibrator';
 
 // 1. Compile Techniques Catalog
+const customCombos = CustomComboStorage.load();
+const initialComboDefs = [...COMBO_DEFS, ...customCombos];
+
 export const ALL_TECHNIQUES: Technique[] = compileAllTechniques(
   BASE_TECHNIQUES,
-  COMBO_DEFS
+  initialComboDefs
 ).map((t) => {
   if (TECHNIQUE_MISTAKES[t.key]) {
     t.mistake = TECHNIQUE_MISTAKES[t.key];
@@ -180,6 +187,22 @@ const poseCalibrator = new PoseCalibrator({
   onClose: () => {
     tunedPose = null;
     hud.updateButtons(state, false);
+  },
+});
+
+const comboBuilderModal = new ComboBuilderModal(BASE_TECHNIQUES, {
+  onSaveCombo: (comboDef) => {
+    CustomComboStorage.add(comboDef);
+    const compiled = buildCombo(comboDef, BASE_TECHNIQUES);
+    if (TECHNIQUE_MISTAKES[compiled.key]) {
+      compiled.mistake = TECHNIQUE_MISTAKES[compiled.key];
+    }
+    ALL_TECHNIQUES.push(compiled);
+    hud.renderKeys(ALL_TECHNIQUES.length - 1);
+    setTechnique(ALL_TECHNIQUES.length - 1);
+  },
+  onClose: () => {
+    // closed
   },
 });
 
@@ -492,6 +515,14 @@ const hud = new HudController(
         hud.updateButtons(state, true);
       }
     },
+    onToggleComboBuilder: () => {
+      if (comboBuilderModal.visible) {
+        comboBuilderModal.close();
+      } else {
+        state.playing = false;
+        comboBuilderModal.open();
+      }
+    },
     onNextPhase: () => {
       if (state.playing) state.playing = false;
       else nextPhase();
@@ -586,6 +617,14 @@ attachKeyboardRouter({
       const currentP = poseOf(getActiveTechnique().a, state.t);
       poseCalibrator.open(currentP);
       hud.updateButtons(state, true);
+    }
+  },
+  toggleComboBuilder: () => {
+    if (comboBuilderModal.visible) {
+      comboBuilderModal.close();
+    } else {
+      state.playing = false;
+      comboBuilderModal.open();
     }
   },
   cycleSpeed: () => {

@@ -13,6 +13,7 @@ export interface AppActionHandlers {
   toggleMocap: () => void;
   toggleOption: (key: 'ghosts' | 'guides' | 'step' | 'split' | 'drill' | 'mistakes') => void;
   toggleTune: () => void;
+  toggleComboBuilder?: () => void;
   cycleSpeed: () => void;
   cycleCamera: () => void;
   stepForward: () => void;
@@ -42,6 +43,7 @@ export const HOTKEY_CATALOG: HotkeyItem[] = [
   { key: 'F', label: 'F', description: 'Toggle Focus highlights and guides' },
   { key: 'L', label: 'L', description: 'Toggle Auto-step phase pause' },
   { key: 'M', label: 'M', description: 'Toggle Common Mistakes & Form Correction Ghost' },
+  { key: '+', label: '+', description: 'Open Custom Combination Builder modal' },
   { key: 'Arrows', label: '← → ↑ ↓', description: 'Orbit camera rotation' },
 ];
 
@@ -96,6 +98,8 @@ export function attachKeyboardRouter(
       'C',
       '[',
       ']',
+      '+',
+      '=',
       'ArrowLeft',
       'ArrowRight',
       'ArrowUp',
@@ -166,6 +170,11 @@ export function attachKeyboardRouter(
       case 't':
       case 'T':
         handlers.toggleTune();
+        break;
+
+      case '+':
+      case '=':
+        handlers.toggleComboBuilder?.();
         break;
 
       case 's':

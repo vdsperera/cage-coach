@@ -15,9 +15,9 @@
 | **2** | Data Models & Persistence | 2 | 2 | 0 | 0 |
 | **3** | Contracts & Command Interfaces | 2 | 2 | 0 | 0 |
 | **4** | Business Logic & Kinematics Services | 4 | 4 | 0 | 0 |
-| **5** | UI & 3D WebGL Integration | 7 | 7 | 0 | 0 |
+| **5** | UI & 3D WebGL Integration | 8 | 8 | 0 | 0 |
 | **6** | Hardening, Testing & Observability | 2 | 2 | 0 | 0 |
-| **Total** | | **20** | **20** | **0** | **0** |
+| **Total** | | **21** | **21** | **0** | **0** |
 
 *Note: In-code performance and resilience fixes (RF-05, RF-06, RF-08, RF-07) have been applied directly to `mma.html` and are marked completed (`[x]`). Subsequent tasks modernize these into modular architecture.*
 
@@ -286,6 +286,18 @@
 - **Acceptance condition:** Toggling 'Mistakes' or pressing 'M' displays amber error ghost with 3D flaw marker; card displays flaw, consequence, and corrective cue; supports Southpaw mirroring cleanly.
 - **Estimated size:** M
 - **Risk / notes:** Must respect bilateral symmetry mirroring and zero allocation in hot path.
+
+#### TASK-021: Interactive Custom Combination Builder UI & Local-First Persistence
+- **Layer:** 5 (UI & 3D WebGL Integration)
+- **Status:** `[x]`
+- **Linked stories:** US-001, US-009
+- **Linked component:** Combo Builder Modal (`src/ui/comboBuilder.ts`), Combo Persistence (`src/storage/combos.ts`), Dynamic Compiler (`src/engine/combos.ts`)
+- **Depends on:** TASK-010, TASK-016, TASK-017
+- **Input:** Available base striking and grappling library.
+- **Output:** Modal dialog allowing athlete to chain 2 to 8 strikes/takedowns in sequence, name the combination, dynamically compile continuous 3D keyframe timelines, persist to `localStorage`, and select for live playback or drill practice.
+- **Acceptance condition:** User can construct custom combo; compiled combo renders with accurate phase progression and contact marks; survives page reloads via `localStorage`; hotkey `+` or click triggers modal.
+- **Estimated size:** M
+- **Risk / notes:** Must handle dynamic addition of keys into reactive HUD dock without breaking selection bounds.
 
 ---
 
