@@ -11,13 +11,13 @@
 
 | Layer | Layer Name | Total Tasks | Completed | In-Progress | Pending |
 | :---: | :--- | :---: | :---: | :---: | :---: |
-| **1** | Infrastructure & Tooling | 3 | 0 | 0 | 3 |
+| **1** | Infrastructure & Tooling | 3 | 1 | 0 | 2 |
 | **2** | Data Models & Persistence | 2 | 1 | 0 | 1 |
 | **3** | Contracts & Command Interfaces | 2 | 0 | 0 | 2 |
 | **4** | Business Logic & Kinematics Services | 4 | 2 | 0 | 2 |
 | **5** | UI & 3D WebGL Integration | 5 | 2 | 0 | 3 |
 | **6** | Hardening, Testing & Observability | 2 | 0 | 0 | 2 |
-| **Total** | | **18** | **5** | **0** | **13** |
+| **Total** | | **18** | **6** | **0** | **12** |
 
 *Note: In-code performance and resilience fixes (RF-05, RF-06, RF-08, RF-07) have been applied directly to `mma.html` and are marked completed (`[x]`). Subsequent tasks modernize these into modular architecture.*
 
@@ -29,7 +29,7 @@
 
 #### TASK-001: Initialize Git Repository and Pipeline Tracking Baseline
 - **Layer:** 1 (Infrastructure)
-- **Status:** `[ ]`
+- **Status:** `[x]`
 - **Linked stories:** N/A (Technical Baseline)
 - **Linked component:** Repository Root / Pipeline Infrastructure
 - **Depends on:** None
