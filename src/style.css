@@ -1,0 +1,545 @@
+:root {
+  color-scheme: dark;
+  --bg: #232930;
+  --panel: rgba(31, 38, 48, 0.92);
+  --line: #3a4452;
+  --ink: #e8e6e1;
+  --ink-2: #a7afba;
+  --ink-3: #6f7987;
+  --red: #d9442f;
+  --blue: #3f7fd6;
+  --amber: #ffc53d;
+  --key: #2b3440;
+  --key-on: #d9442f;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --panel: rgba(244, 243, 239, 0.94);
+    --line: #d5d2ca;
+    --ink: #1d222a;
+    --ink-2: #4e5663;
+    --ink-3: #8b929d;
+    --key: #e6e3dc;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+  font-family: Barlow, system-ui, sans-serif;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+canvas {
+  display: block;
+  touch-action: none;
+}
+
+#stage {
+  position: fixed;
+  inset: 0;
+}
+
+.ui {
+  position: fixed;
+  z-index: 2;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  backdrop-filter: blur(6px);
+}
+
+button {
+  font-family: inherit;
+}
+
+#head {
+  top: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  max-width: 60vw;
+}
+
+#head h1 {
+  margin: 0;
+  font: 700 24px/1 'Barlow Condensed', sans-serif;
+  letter-spacing: 0.01em;
+}
+
+#head h1 small {
+  display: block;
+  font: 500 12px/1.3 Barlow, sans-serif;
+  color: var(--ink-2);
+  margin-top: 3px;
+}
+
+.seg {
+  display: flex;
+  padding: 3px;
+  gap: 3px;
+}
+
+.seg button {
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+  padding: 6px 11px;
+  border-radius: 4px;
+  font: 500 13px Barlow, sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.seg button[aria-pressed='true'] {
+  background: var(--key);
+  color: var(--ink);
+}
+
+.seg button kbd {
+  color: var(--ink-3);
+  margin-left: 6px;
+  font: 500 11px Barlow, sans-serif;
+}
+
+.seg button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+#tools {
+  top: 14px;
+  right: 14px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 640px;
+}
+
+#tools .seg button {
+  padding: 6px 9px;
+}
+
+#card {
+  right: 14px;
+  top: 72px;
+  width: 300px;
+  padding: 16px 18px 14px;
+  max-height: calc(100vh - 250px);
+  overflow: auto;
+}
+
+body.split #card {
+  left: 14px;
+  right: auto;
+}
+
+#card .name {
+  font: 700 30px/1 'Barlow Condensed', sans-serif;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+#card .name kbd {
+  font: 500 13px Barlow, sans-serif;
+  color: var(--ink-3);
+}
+
+#card .side {
+  color: var(--ink-2);
+  margin: 4px 0 12px;
+}
+
+#phases {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 3px;
+  height: 6px;
+  margin-bottom: 6px;
+}
+
+#phases i {
+  background: var(--key);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+#phases i.on {
+  background: var(--red);
+}
+
+#phases i b {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--ink);
+}
+
+#phaseName {
+  font-weight: 600;
+  margin-bottom: 2px;
+  min-height: 1.4em;
+}
+
+#explain {
+  color: var(--ink-2);
+  margin: 0 0 10px;
+  min-height: 2.8em;
+}
+
+#stepBtns {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+#stepBtns button,
+.btn {
+  flex: 1;
+  border: 1px solid var(--line);
+  background: var(--key);
+  color: var(--ink);
+  border-radius: 4px;
+  padding: 7px 8px;
+  font: 500 13px Barlow, sans-serif;
+  cursor: pointer;
+}
+
+#stepBtns button kbd {
+  color: var(--ink-3);
+  margin-left: 4px;
+  font-size: 11px;
+}
+
+#readouts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 12px;
+  border-top: 1px solid var(--line);
+  padding: 9px 0 6px;
+  font-size: 13px;
+}
+
+#readouts div {
+  display: flex;
+  justify-content: space-between;
+  color: var(--ink-2);
+}
+
+#readouts b {
+  color: var(--ink);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+h4 {
+  margin: 10px 0 4px;
+  font: 600 11px Barlow, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+#cues {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#cues li {
+  padding: 7px 0;
+  border-top: 1px solid var(--line);
+  color: var(--ink);
+}
+
+#notes {
+  width: 100%;
+  min-height: 64px;
+  resize: vertical;
+  background: var(--key);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 8px;
+  font: 400 13px Barlow, sans-serif;
+}
+
+#notesRow {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+#notesRow .btn {
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+#notesRow span {
+  color: var(--ink-3);
+  font-size: 12px;
+  align-self: center;
+}
+
+#partner {
+  margin-top: 10px;
+  color: var(--ink-2);
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+
+#partner span {
+  color: var(--blue);
+  font-weight: 500;
+}
+
+#keys {
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.row::-webkit-scrollbar {
+  display: none;
+}
+
+.row > label {
+  flex: 0 0 84px;
+  color: var(--ink-3);
+  font: 500 12px Barlow, sans-serif;
+}
+
+.key {
+  flex: 0 0 auto;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 7px 10px 7px 7px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  cursor: pointer;
+  color: var(--ink);
+  min-width: 118px;
+}
+
+.key:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.key kbd {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  background: var(--key);
+  font: 700 14px 'Barlow Condensed', sans-serif;
+  color: var(--ink);
+}
+
+.key.on {
+  border-color: var(--red);
+}
+
+.key.on kbd {
+  background: var(--key-on);
+  color: #fff;
+}
+
+.key span {
+  font: 500 13px/1.1 Barlow, sans-serif;
+  text-align: left;
+}
+
+.key span em {
+  display: block;
+  font-style: normal;
+  color: var(--ink-3);
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+#hint {
+  left: 14px;
+  bottom: 188px;
+  color: var(--ink-2);
+  font-size: 12px;
+  max-width: 440px;
+}
+
+body.split #hint {
+  display: none;
+}
+
+#hint kbd {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.vlabel {
+  position: fixed;
+  z-index: 2;
+  display: none;
+  color: var(--ink-2);
+  font: 600 12px Barlow, sans-serif;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 3px 8px;
+}
+
+body.split .vlabel {
+  display: block;
+}
+
+#drill {
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 12px;
+  display: none;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+#drill.on {
+  display: flex;
+}
+
+#drill .lbl {
+  color: var(--ink-3);
+  font-size: 12px;
+  margin-right: 2px;
+}
+
+#drill label {
+  color: var(--ink-2);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+#callout {
+  top: 38%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+  display: none;
+}
+
+#callout.on {
+  display: block;
+}
+
+#callout .big {
+  font: 700 clamp(40px, 8vw, 96px)/1 'Barlow Condensed', sans-serif;
+  color: var(--amber);
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.6);
+}
+
+#callout .sub {
+  margin-top: 8px;
+  color: var(--ink);
+  font-size: 16px;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+}
+
+#callout .sub kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background: var(--key);
+  font: 700 15px 'Barlow Condensed', sans-serif;
+  margin-right: 6px;
+}
+
+@media (max-width: 760px) {
+  #head {
+    max-width: none;
+  }
+
+  #card {
+    top: auto;
+    bottom: 196px;
+    left: 14px;
+    right: 14px;
+    width: auto;
+    padding: 12px 14px;
+    max-height: 40vh;
+  }
+
+  #card .name {
+    font-size: 24px;
+  }
+
+  #cues li {
+    padding: 5px 0;
+  }
+
+  #hint {
+    display: none;
+  }
+
+  #head h1 small {
+    display: none;
+  }
+
+  #tools {
+    position: static;
+    max-width: none;
+  }
+
+  .row > label {
+    flex-basis: 64px;
+  }
+
+  #drill {
+    top: auto;
+    bottom: 196px;
+    left: 14px;
+    right: 14px;
+    transform: none;
+  }
+}
+

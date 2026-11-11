@@ -225,7 +225,7 @@
 
 #### TASK-016: Responsive HUD Panels, Card Inspector, and Mobile Dock
 - **Layer:** 5 (UI & integration)
-- **Status:** `[x]` *(Completed in `mma.html`; ready for module extraction)*
+- **Status:** `[x]`
 - **Linked stories:** US-001, US-003, US-005, US-009
 - **Linked component:** HUD & Controls Overlay (Resolves RF-07)
 - **Depends on:** TASK-015
