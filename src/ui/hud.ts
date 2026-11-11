@@ -16,6 +16,7 @@ export interface HudEventHandlers {
   onToggleOption: (
     key: keyof Pick<AppState, 'ghosts' | 'guides' | 'step' | 'split' | 'drill'>
   ) => void;
+  onToggleTune: () => void;
   onNextPhase: () => void;
   onPrevPhase: () => void;
   onSaveNote: (content: string) => void;
@@ -212,7 +213,7 @@ export class HudController {
     });
   }
 
-  public updateButtons(state: AppState): void {
+  public updateButtons(state: AppState, isTuning = false): void {
     document.querySelectorAll('#modeSeg button').forEach((b) => {
       const btn = b as HTMLElement;
       btn.setAttribute('aria-pressed', String(btn.dataset.mode === state.mode));
@@ -252,6 +253,11 @@ export class HudController {
     const drillPanel = document.getElementById('drill');
     if (drillPanel) {
       drillPanel.classList.toggle('on', state.drill);
+    }
+
+    const tuneBtn = document.getElementById('tuneBtn');
+    if (tuneBtn) {
+      tuneBtn.setAttribute('aria-pressed', String(isTuning));
     }
   }
 
@@ -299,11 +305,16 @@ export class HudController {
     // View Options Segment
     document.querySelectorAll('#viewSeg button').forEach((btn) => {
       btn.addEventListener('click', () => {
-        const opt = (btn as HTMLElement).dataset.opt as keyof Pick<
-          AppState,
-          'ghosts' | 'guides' | 'step' | 'split' | 'drill'
-        >;
-        if (opt) this.handlers.onToggleOption(opt);
+        const opt = (btn as HTMLElement).dataset.opt;
+        if (opt === 'tune') {
+          this.handlers.onToggleTune();
+          return;
+        }
+        if (opt) {
+          this.handlers.onToggleOption(
+            opt as keyof Pick<AppState, 'ghosts' | 'guides' | 'step' | 'split' | 'drill'>
+          );
+        }
       });
     });
 

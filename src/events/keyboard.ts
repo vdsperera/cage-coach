@@ -12,6 +12,7 @@ export interface AppActionHandlers {
   toggleStance: () => void;
   toggleMocap: () => void;
   toggleOption: (key: 'ghosts' | 'guides' | 'step' | 'split' | 'drill') => void;
+  toggleTune: () => void;
   cycleSpeed: () => void;
   cycleCamera: () => void;
   stepForward: () => void;
@@ -35,6 +36,7 @@ export const HOTKEY_CATALOG: HotkeyItem[] = [
   { key: 'S', label: 'S', description: 'Cycle speed: 1.0x → 0.5x → 0.25x' },
   { key: 'C', label: 'C', description: 'Cycle Camera angles (0-4)' },
   { key: 'V', label: 'V', description: 'Toggle 4-way Quad-Split Viewports' },
+  { key: 'T', label: 'T', description: 'Toggle 3D Pose Calibrator & Visual Angle Tuner' },
   { key: 'D', label: 'D', description: 'Toggle Automated Audio-Visual Drill Coach' },
   { key: 'G', label: 'G', description: 'Toggle Ghost breakdown silhouettes' },
   { key: 'F', label: 'F', description: 'Toggle Focus highlights and guides' },
@@ -86,6 +88,8 @@ export function attachKeyboardRouter(
       'V',
       'd',
       'D',
+      't',
+      'T',
       's',
       'S',
       'c',
@@ -157,6 +161,11 @@ export function attachKeyboardRouter(
       case 'd':
       case 'D':
         handlers.toggleOption('drill');
+        break;
+
+      case 't':
+      case 'T':
+        handlers.toggleTune();
         break;
 
       case 's':

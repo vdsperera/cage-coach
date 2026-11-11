@@ -21,8 +21,9 @@ export * from './engine/mocap';
 export * from './storage/notes';
 export * from './events/keyboard';
 export * from './ui/hud';
+export * from './ui/calibrator';
 
-import type { AppState, Technique, JointIdentifier, AnatomicalMarker } from './types/kinematics';
+import type { AppState, Technique, JointIdentifier, AnatomicalMarker, Pose } from './types/kinematics';
 import { BASE_TECHNIQUES, COMBO_DEFS } from './data/techniques';
 import { compileAllTechniques } from './engine/combos';
 import { D, poseAt, mirrorPose, sideName } from './engine/kinematics';
@@ -50,6 +51,7 @@ import { NotesManager } from './storage/notes';
 import { MocapManager } from './engine/mocap';
 import { attachKeyboardRouter } from './events/keyboard';
 import { HudController } from './ui/hud';
+import { PoseCalibrator } from './ui/calibrator';
 
 // 1. Compile Techniques Catalog
 export const ALL_TECHNIQUES: Technique[] = compileAllTechniques(BASE_TECHNIQUES, COMBO_DEFS);
@@ -149,6 +151,19 @@ const drillCoach = new DrillCoach(ALL_TECHNIQUES, {
   },
   onStopTechnique: () => {
     state.playing = false;
+  },
+});
+
+let tunedPose: Pose | null = null;
+
+const poseCalibrator = new PoseCalibrator({
+  onPoseChanged: (p) => {
+    tunedPose = p;
+    apply(fighterA, p);
+  },
+  onClose: () => {
+    tunedPose = null;
+    hud.updateButtons(state, false);
   },
 });
 
@@ -415,6 +430,18 @@ const hud = new HudController(
         }
       }
     },
+    onToggleTune: () => {
+      if (poseCalibrator.visible) {
+        poseCalibrator.close();
+        tunedPose = null;
+        hud.updateButtons(state, false);
+      } else {
+        state.playing = false;
+        const currentP = poseOf(getActiveTechnique().a, state.t);
+        poseCalibrator.open(currentP);
+        hud.updateButtons(state, true);
+      }
+    },
     onNextPhase: () => {
       if (state.playing) state.playing = false;
       else nextPhase();
@@ -499,6 +526,18 @@ attachKeyboardRouter({
     hud.updateButtons(state);
     if (opt === 'ghosts' || opt === 'guides') buildGuides();
   },
+  toggleTune: () => {
+    if (poseCalibrator.visible) {
+      poseCalibrator.close();
+      tunedPose = null;
+      hud.updateButtons(state, false);
+    } else {
+      state.playing = false;
+      const currentP = poseOf(getActiveTechnique().a, state.t);
+      poseCalibrator.open(currentP);
+      hud.updateButtons(state, true);
+    }
+  },
   cycleSpeed: () => {
     state.speed = state.speed === 1 ? 0.5 : state.speed === 0.5 ? 0.25 : 1;
     hud.updateButtons(state);
@@ -576,7 +615,11 @@ function frame(now: number): void {
   // Articulate 3D Fighters
   fighterA.holder.visible = true;
   fighterB.holder.visible = showPartner;
-  apply(fighterA, poseOf(tk.a, state.t));
+  if (poseCalibrator.visible && tunedPose) {
+    apply(fighterA, tunedPose);
+  } else {
+    apply(fighterA, poseOf(tk.a, state.t));
+  }
   if (showPartner) {
     apply(fighterB, poseOf(tk.b, state.t));
   }

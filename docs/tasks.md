@@ -11,13 +11,13 @@
 
 | Layer | Layer Name | Total Tasks | Completed | In-Progress | Pending |
 | :---: | :--- | :---: | :---: | :---: | :---: |
-| **1** | Infrastructure & Tooling | 3 | 2 | 0 | 1 |
+| **1** | Infrastructure & Tooling | 3 | 3 | 0 | 0 |
 | **2** | Data Models & Persistence | 2 | 2 | 0 | 0 |
-| **3** | Contracts & Command Interfaces | 2 | 0 | 0 | 2 |
+| **3** | Contracts & Command Interfaces | 2 | 2 | 0 | 0 |
 | **4** | Business Logic & Kinematics Services | 4 | 4 | 0 | 0 |
-| **5** | UI & 3D WebGL Integration | 5 | 2 | 0 | 3 |
-| **6** | Hardening, Testing & Observability | 2 | 0 | 0 | 2 |
-| **Total** | | **18** | **11** | **0** | **7** |
+| **5** | UI & 3D WebGL Integration | 6 | 6 | 0 | 0 |
+| **6** | Hardening, Testing & Observability | 2 | 2 | 0 | 0 |
+| **Total** | | **19** | **19** | **0** | **0** |
 
 *Note: In-code performance and resilience fixes (RF-05, RF-06, RF-08, RF-07) have been applied directly to `mma.html` and are marked completed (`[x]`). Subsequent tasks modernize these into modular architecture.*
 
@@ -262,6 +262,18 @@
 - **Acceptance condition:** Zero memory leaks, 0 unhandled runtime exceptions, and consistent 60 fps verified.
 - **Estimated size:** M
 - **Risk / notes:** Requires headless Chromium with WebGL support.
+
+#### TASK-019: Interactive 3D Pose Calibrator & Visual Biomechanics Tuning Tool
+- **Layer:** 5 (UI & 3D WebGL Integration)
+- **Status:** `[x]`
+- **Linked stories:** US-001, US-004
+- **Linked component:** Pose Calibrator (`src/ui/calibrator.ts`) & CI Automation (`.github/workflows/ci.yml`)
+- **Depends on:** TASK-016, TASK-017
+- **Input:** Live 3D scene and fighter keyframes.
+- **Output:** Live slider overlay adjusting joint Pitch/Yaw/Roll in degrees, root translation offsets, real-time 3D rig update, and JSON clipboard exporter.
+- **Acceptance condition:** Pressing 'Tune' or 'T' opens calibrator; moving sliders updates Fighter A live in the render loop; 'Copy Pose JSON' places formatted biomechanical pose data onto clipboard; GitHub Actions CI runs on push/PR.
+- **Estimated size:** M
+- **Risk / notes:** Must maintain Euler `YXZ` multiaxial rotation order and avoid runtime heap allocations in render loop.
 
 ---
 
