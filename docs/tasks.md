@@ -17,7 +17,7 @@
 | **4** | Business Logic & Kinematics Services | 4 | 4 | 0 | 0 |
 | **5** | UI & 3D WebGL Integration | 5 | 2 | 0 | 3 |
 | **6** | Hardening, Testing & Observability | 2 | 0 | 0 | 2 |
-| **Total** | | **18** | **10** | **0** | **8** |
+| **Total** | | **18** | **11** | **0** | **7** |
 
 *Note: In-code performance and resilience fixes (RF-05, RF-06, RF-08, RF-07) have been applied directly to `mma.html` and are marked completed (`[x]`). Subsequent tasks modernize these into modular architecture.*
 
@@ -161,7 +161,7 @@
 
 #### TASK-011: Interactive Audio-Visual Drill Coach State Machine
 - **Layer:** 4 (Business logic)
-- **Status:** `[ ]`
+- **Status:** `[x]`
 - **Linked stories:** US-005
 - **Linked component:** Drill Coach State Machine
 - **Depends on:** TASK-010
